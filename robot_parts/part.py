@@ -180,7 +180,7 @@ class Part:
         self.g.screen.blit(text, self.pos - [0,75])
 
         if self.parent:
-            text = self.g.terminal[10].render(f"Linked to: {self.parent.name}", False, [255,255,255])
+            text = self.g.terminal[10].render(f"Distance: {self.delta_to_parent}", False, [255,255,255])
             self.g.screen.blit(text, self.pos - [0,30])
         if self.children:
             string = ""
