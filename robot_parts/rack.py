@@ -14,10 +14,10 @@ class Rack(Attachable):
 
         self.extendable = True
 
-        self.modules = (Module(v2([25,25])),
-                        Module(v2([75,25])),
-                        Module(v2([25,75])),
-                        Module(v2([75,75])),
+        self.modules = (Module(v2([-25,-25])),
+                        Module(v2([25,-25])),
+                        Module(v2([-25,25])),
+                        Module(v2([25,25])),
                         )
         self.battery_life = 100
         self.mass = 10

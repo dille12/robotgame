@@ -8,7 +8,7 @@ class Turret(Part):
 
         self.battery_life = 0
         self.mass = 45
-        self.angle = 90
+        self.turn_radius = 25
 
         self.modular_type = "Weapon"
 

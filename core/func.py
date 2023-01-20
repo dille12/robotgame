@@ -3,6 +3,7 @@ import random
 from values import *
 import math
 from numpy import array as v2
+import numpy
 
 
 
@@ -127,11 +128,10 @@ def pivot_child_around_parent(part):
         print("New pos:", pos)
         part.pos = pos + parent.pos
         part.parent_angle_difference = current_angle
-        part.delta_to_parent = pos
+        part.delta_to_parent = pos.astype(numpy.int32)
 
         print("New delta:", part.delta_to_parent)
         print("<<<<<<<<<<<<<<<")
-
 
 
 

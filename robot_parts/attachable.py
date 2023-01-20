@@ -36,6 +36,7 @@ class Attachable(Part):
             x,y,dir = closest
             self.set_parent(closest_part)
         else:
+            self.angle = 0
             self.pos = mp
             self.unset_parent()
             self.move_children()

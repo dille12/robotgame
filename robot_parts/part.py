@@ -25,6 +25,10 @@ class Part:
         self.modular_compability = ["None"]
         self.modular_type = "None"
         self.parent_angle_difference = 0
+        self.turn_radius = 0
+        self.rotate_turret = False
+        self.delta_to_parent = None
+        self.closest = False
 
     def recursive_get_children(self, part, parts):
 
@@ -176,7 +180,7 @@ class Part:
         text = self.g.terminal[10].render(self.name, False, [255,255,255])
         self.g.screen.blit(text, self.pos - [0,45])
 
-        text = self.g.terminal[10].render("Angle: " + str(self.angle), False, [255,255,255])
+        text = self.g.terminal[10].render("Angle: " + str(self.angle) + " Total angle:" + str(self.total_delta_angle), False, [255,255,255])
         self.g.screen.blit(text, self.pos - [0,75])
 
         if self.parent:
@@ -207,8 +211,7 @@ class Part:
         else:
             self.total_delta_pos, self.total_delta_angle = v2([0,0]), self.angle
 
-        if self.active:
-            self.draw_active_texts()
+
 
         if self.total_delta_angle:
             rotated, rot_rect = self.rotate_around_pivot(angle = self.total_delta_angle)
@@ -231,7 +234,7 @@ class Part:
                 return
 
 
-        if self.rect.collidepoint(self.g.mouse_pos):
+        if self.rect.collidepoint(self.g.mouse_pos) and self.closest:
             on_top = True
             if "mouse0" in self.g.keypress:
                 self.g.sounds["select"].stop()
@@ -244,7 +247,7 @@ class Part:
                     if x != self:
                         x.active = False
 
-                self.active = True
+                self.active = not self.active
 
             if "mouse2" in self.g.keypress and self.active:
                 self.g.sounds["menu_click2"].stop()
@@ -272,6 +275,43 @@ class Part:
             rect1 = self.rect.copy()
             rect1.inflate_ip(8,8)
             pygame.draw.rect(self.g.screen, [255,255,255], rect1, 1)
+
+        if self.turn_radius and self.active:
+            ang_rad = math.radians(self.turn_radius)
+            ang_rad1 = math.radians(-self.total_delta_angle - 90)
+
+            for a in [ang_rad1-ang_rad, ang_rad1 + ang_rad]:
+                v = v2([math.cos(a) * 1000, math.sin(a) * 1000])
+                pygame.draw.line(self.g.screen, [0,255,0], self.pos, self.pos + v)
+
+
+            rotation_distance = 200
+            pos = (self.pos[0] + math.cos(ang_rad1) * rotation_distance, self.pos[1] + math.sin(ang_rad1) * rotation_distance)
+            pygame.draw.circle(self.g.screen, [0,255,0], pos, 10)
+            rect = pygame.Rect(pos[0], pos[1], 0,0)
+            rect.inflate_ip(10,10)
+            if rect.collidepoint(self.g.mouse_pos) and "mouse2" in self.g.keypress:
+                self.g.sounds["select"].stop()
+                self.g.sounds["select"].play()
+                self.rotate_turret = True
+
+        if self.rotate_turret:
+            if "mouse2" not in self.g.keypress_held_down:
+                self.rotate_turret = False
+                self.g.sounds["connect"].stop()
+                self.g.sounds["connect"].play()
+            else:
+                total = self.total_delta_angle - self.angle
+                angle = math.degrees(math.atan2(self.g.mouse_pos[1] - self.pos[1], self.g.mouse_pos[0] - self.pos[0]))//5
+                self.angle =  - total - 90 - angle*5
+
+
+
+
+
+
+
+
 
         self.g.screen.blit(rotated, blitpos)
 
