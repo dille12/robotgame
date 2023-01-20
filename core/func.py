@@ -109,24 +109,28 @@ def pick_random_from_list(list):
     return list[random.randint(0, len(list) - 1)]
 
 def pivot_child_around_parent(part):
+
     parent = part.parent
     angle_to_parent = part.parent_angle_difference
 
     current_angle = get_angle_diff(part.angle, parent.angle)
 
     if angle_to_parent != current_angle:
+        print(">>>>>>>>>>>>>>>>>")
+        print("Child:", part.name, "Parent:", parent.name)
+
+        print("Original delta", part.delta_to_parent)
         diff = get_angle_diff(angle_to_parent, current_angle)
         print("SHOULD BE ROTATED BY", diff)
 
-        vector_to_child = parent.pos - part.pos
-
-        print("Vector to be rotated:", vector_to_child)
-
-        pos = rotate_point(vector_to_child, diff)
+        pos = rotate_point(part.delta_to_parent, diff)
         print("New pos:", pos)
         part.pos = pos + parent.pos
         part.parent_angle_difference = current_angle
-        part.delta_to_parent = -pos
+        part.delta_to_parent = pos
+
+        print("New delta:", part.delta_to_parent)
+        print("<<<<<<<<<<<<<<<")
 
 
 
