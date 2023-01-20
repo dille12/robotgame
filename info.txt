@@ -1,0 +1,5 @@
+A 1v1 card game where players take on the role of rival robot engineers, building and programming robots to compete in a series of battles.
+Each turn, players draw from a deck of cards representing different robot parts, such as motors, weapons, and sensors.
+Players use these cards to build and upgrade their robots, and then program them to battle against their opponent's robots.
+Points are scored for winning battles and for successfully completing special programming challenges.
+The game ends when one player reaches a certain number of points or runs out of cards in their deck.
