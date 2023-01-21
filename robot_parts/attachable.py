@@ -15,9 +15,9 @@ class Attachable(Part):
         closest_dist = 100
 
 
-        posx = (self.g.mouse_pos[0])//10
-        posy = (self.g.mouse_pos[1])//10
-        mp = v2([posx*10, posy*10])
+        posx = (self.g.mouse_pos[0])//5
+        posy = (self.g.mouse_pos[1])//5
+        mp = v2([posx*5, posy*5])
 
 
         for part in self.g.parts:

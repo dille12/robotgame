@@ -23,7 +23,7 @@ def load_images(game, size_conversion):
                 temp = pygame.image.load(f"{mypath}/{x}").convert()
             game.loading = f"{mypath}/{x}"
             game.images[x.removesuffix(".png")] = {}
-            for i in range(9):
+            for i in range(2):
                 exp = (4/5) ** i
 
 

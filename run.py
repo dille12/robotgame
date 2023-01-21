@@ -3,6 +3,7 @@ import random
 from random import randint as rint
 import sys
 import core.keypress
+from core.gametick import GameTick
 from numpy import array as v2
 
 from robot_parts.part import Part
@@ -11,6 +12,7 @@ from robot_parts.battery import Battery
 from robot_parts.turret import Turret
 from robot_parts.weapon_clamp import WeaponClamp
 from robot_parts.rack import Rack
+
 
 
 from robot_parts.attachable import Attachable
@@ -30,6 +32,7 @@ class Game:
     def __init__(self, screen):
         self.screen = screen
         self.size_conv = [1,1]
+        self.res = (1920, 1080)
         self.keypress = []
         self.keypress_held_down = []
         self.terminal = {}
@@ -40,6 +43,10 @@ class Game:
         self.zoom = 0
         self.camera_pos = v2([0,0])
         self.parts = []
+        self.GT = GameTick
+        self.darkened_surface = pygame.Surface(self.res).convert_alpha()
+        self.darkened_surface.fill((0,0,0))
+        self.darkened_surface.set_alpha(155)
 
         load_images(self, self.size_conv)
         load_sounds(self)
@@ -114,8 +121,13 @@ while 1:
 
     active_part = None
     for x in game.parts:
-        if x.active:
-            x.draw_active_texts()
+        if x.active and not x.moving and not x.rotate_turret:
+            x.active_game_tick.tick()
+
+            x.draw_info_box()
+
             break
+        else:
+            x.active_game_tick.value = 0
 
     pygame.display.update()

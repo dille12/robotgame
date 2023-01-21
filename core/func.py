@@ -212,6 +212,14 @@ def closest_point(rect, p):
 
     return (dx, dy, dir)
 
+def get_closest_point_from_list(point, list):
+    dist = -1
+    for pos in list:
+        d = get_dist_points(point, pos)
+        if d < dist or dist == -1:
+            dist = d
+            closest_point = pos
+    return closest_point
 
 
 def point_inside(point, point2, tolerance):

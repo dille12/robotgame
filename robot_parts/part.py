@@ -1,11 +1,13 @@
 import pygame
 from hud_elements.button import Button
+from robot_parts.part_hud_elemets import Part_HUD_Elements
 import core.func
 from numpy import array as v2
 import numpy
 import math
-class Part:
+class Part(Part_HUD_Elements):
     def __init__(self, name, game, pos, image):
+        super().__init__()
         self.name = name
         self.g = game
         self.pos = pos
@@ -29,6 +31,7 @@ class Part:
         self.rotate_turret = False
         self.delta_to_parent = None
         self.closest = False
+        self.active_game_tick = self.g.GT(22, oneshot = True)
 
     def recursive_get_children(self, part, parts):
 
@@ -176,30 +179,11 @@ class Part:
 
         return core.func.rotate(self.image[self.g.zoom].copy(), angle, center_vector, offset_vector)
 
-    def draw_active_texts(self):
-        text = self.g.terminal[10].render(self.name, False, [255,255,255])
-        self.g.screen.blit(text, self.pos - [0,45])
-
-        text = self.g.terminal[10].render("Angle: " + str(self.angle) + " Total angle:" + str(self.total_delta_angle), False, [255,255,255])
-        self.g.screen.blit(text, self.pos - [0,75])
-
-        if self.parent:
-            text = self.g.terminal[10].render(f"Distance: {self.delta_to_parent}", False, [255,255,255])
-            self.g.screen.blit(text, self.pos - [0,30])
-        if self.children:
-            string = ""
-            for x in self.children:
-                string += x.name + ", "
-
-            text = self.g.terminal[10].render(f"Links to: {string}", False, [255,255,255])
-            self.g.screen.blit(text, self.pos - [0,15])
-
-
-
     def tick(self):
 
         if "w" in self.g.keypress_held_down and self.active:
-            self.angle += 1
+            self.angle += 3
+            self.move_children()
 
         self.current_center = self.center #core.func.rotate_point(self.center, delta_angle - self.angle)
 
@@ -274,7 +258,7 @@ class Part:
         if on_top:
             rect1 = self.rect.copy()
             rect1.inflate_ip(8,8)
-            pygame.draw.rect(self.g.screen, [255,255,255], rect1, 1)
+            pygame.draw.rect(self.g.screen, [255,255,255], rect1, 1 if not self.active else 3)
 
         if self.turn_radius and self.active:
             ang_rad = math.radians(self.turn_radius)
@@ -289,7 +273,7 @@ class Part:
             pos = (self.pos[0] + math.cos(ang_rad1) * rotation_distance, self.pos[1] + math.sin(ang_rad1) * rotation_distance)
             pygame.draw.circle(self.g.screen, [0,255,0], pos, 10)
             rect = pygame.Rect(pos[0], pos[1], 0,0)
-            rect.inflate_ip(10,10)
+            rect.inflate_ip(20,20)
             if rect.collidepoint(self.g.mouse_pos) and "mouse2" in self.g.keypress:
                 self.g.sounds["select"].stop()
                 self.g.sounds["select"].play()
@@ -316,5 +300,7 @@ class Part:
         self.g.screen.blit(rotated, blitpos)
 
         pygame.draw.rect(self.g.screen, [255,255,255], (self.pos[0], self.pos[1], 3,3))
+
+
 
         #pygame.draw.rect(self.g.screen, [0,255,0], (self.pos[0] + self.current_center[0], self.pos[1] + self.current_center[1], 3,3))
