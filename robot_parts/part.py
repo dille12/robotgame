@@ -10,7 +10,8 @@ class Part(Part_HUD_Elements):
         super().__init__()
         self.name = name
         self.g = game
-        self.pos = pos
+        self.pos = v2(pos, dtype=numpy.int32)
+        self.rect = pygame.Rect(self.pos[0], self.pos[1], 10, 10)
         self.image = image
         self.active = False
         self.sell_button = Button(game, 10,80, f"Sell: {self.name}", font = 50, dont_center = True)
@@ -32,6 +33,12 @@ class Part(Part_HUD_Elements):
         self.delta_to_parent = None
         self.closest = False
         self.active_game_tick = self.g.GT(22, oneshot = True)
+
+    def recursive_get_parent_depth(self, depth):
+        if self.parent:
+            depth = self.parent.recursive_get_parent_depth(depth + 1)
+        return depth
+
 
     def recursive_get_children(self, part, parts):
 
@@ -137,6 +144,8 @@ class Part(Part_HUD_Elements):
                 self.pos = self.g.mouse_pos
                 self.unset_parent()
 
+            self.move_children()
+
 
     def set_parent(self, part):
         self.parent_angle_difference = core.func.get_angle_diff(self.angle, part.angle)
@@ -147,6 +156,7 @@ class Part(Part_HUD_Elements):
 
         self.parent.children.append(self)
         self.delta_to_parent = self.pos - self.parent.pos
+        self.delta_to_parent = self.delta_to_parent.astype('int32')
 
     def unset_parent(self):
         self.parent = None
@@ -261,23 +271,7 @@ class Part(Part_HUD_Elements):
             pygame.draw.rect(self.g.screen, [255,255,255], rect1, 1 if not self.active else 3)
 
         if self.turn_radius and self.active:
-            ang_rad = math.radians(self.turn_radius)
-            ang_rad1 = math.radians(-self.total_delta_angle - 90)
-
-            for a in [ang_rad1-ang_rad, ang_rad1 + ang_rad]:
-                v = v2([math.cos(a) * 1000, math.sin(a) * 1000])
-                pygame.draw.line(self.g.screen, [0,255,0], self.pos, self.pos + v)
-
-
-            rotation_distance = 200
-            pos = (self.pos[0] + math.cos(ang_rad1) * rotation_distance, self.pos[1] + math.sin(ang_rad1) * rotation_distance)
-            pygame.draw.circle(self.g.screen, [0,255,0], pos, 10)
-            rect = pygame.Rect(pos[0], pos[1], 0,0)
-            rect.inflate_ip(20,20)
-            if rect.collidepoint(self.g.mouse_pos) and "mouse2" in self.g.keypress:
-                self.g.sounds["select"].stop()
-                self.g.sounds["select"].play()
-                self.rotate_turret = True
+            self.draw_turret_turn()
 
         if self.rotate_turret:
             if "mouse2" not in self.g.keypress_held_down:

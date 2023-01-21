@@ -2,6 +2,7 @@
 import pygame
 from numpy import array as v2
 import core.func
+import math
 
 
 class Part_HUD_Elements:
@@ -14,6 +15,26 @@ class Part_HUD_Elements:
             self.g.screen.blit(text, pos, area = area)
         else:
             self.g.screen.blit(text, pos)
+
+
+    def draw_turret_turn(self):
+        ang_rad = math.radians(self.turn_radius)
+        ang_rad1 = math.radians(-self.total_delta_angle - 90)
+
+        for a in [ang_rad1-ang_rad, ang_rad1 + ang_rad]:
+            v = v2([math.cos(a) * 1000, math.sin(a) * 1000])
+            pygame.draw.line(self.g.screen, [0,255,0], self.pos, self.pos + v)
+
+
+        rotation_distance = 200
+        pos = (self.pos[0] + math.cos(ang_rad1) * rotation_distance, self.pos[1] + math.sin(ang_rad1) * rotation_distance)
+        pygame.draw.circle(self.g.screen, [0,255,0], pos, 10)
+        rect = pygame.Rect(pos[0], pos[1], 0,0)
+        rect.inflate_ip(20,20)
+        if rect.collidepoint(self.g.mouse_pos) and "mouse2" in self.g.keypress:
+            self.g.sounds["select"].stop()
+            self.g.sounds["select"].play()
+            self.rotate_turret = True
 
 
 
@@ -61,7 +82,7 @@ class Part_HUD_Elements:
 
         self.g.screen.blit(self.g.darkened_surface, (rect.x, rect.y), area = blit_area)
 
-        self.g.screen.blit(self.g.images["y_line"][0], (rect.x, rect.y + 40), area = (rect.w, 0, rect.w, rect.h)) # 
+        self.g.screen.blit(self.g.images["y_line"][0], (rect.x, rect.y + 40), area = (rect.w, 0, rect.w, rect.h)) #
 
         pygame.draw.rect(self.g.screen, [255,255,255], rect, 4)
 
@@ -73,3 +94,5 @@ class Part_HUD_Elements:
         self.quicktext(f"Modular type: {self.modular_type}", 15, def_pos + [4,70], area = blit_area)
         self.quicktext(f"Links to: {self.modular_compability}", 15, def_pos + [4,90], area = blit_area)
         self.quicktext(f"Extendable" if self.extendable else "Not extendable", 15, def_pos + [4,110], area = blit_area)
+
+        self.quicktext(f"Depth: {self.recursive_get_parent_depth(0)}", 15, def_pos + [4,130], area = blit_area)

@@ -11,6 +11,8 @@ from robot_parts.r_core import Core
 from robot_parts.battery import Battery
 from robot_parts.turret import Turret
 from robot_parts.weapon_clamp import WeaponClamp
+from robot_parts.ceiling_clamp import CeilingClamp
+
 from robot_parts.rack import Rack
 
 
@@ -57,29 +59,20 @@ class Game:
 
 game = Game(screen)
 
-game.parts.append(Core("Core", game, v2([500,500]), game.images["core_temp"]))
+game.parts.append(Core("Core", game, [500,500], game.images["core_temp"]))
 
-game.parts.append(Rack("Rack", game, v2([400,900]), game.images["rack"]))
+game.parts.append(Rack("Rack", game, [500,500], game.images["rack"]))
 
-game.parts.append(Battery("Small Battery", game, v2([500,600]), game.images["battery"]))
+game.parts.append(Battery("Small Battery", game, [500,500], game.images["battery"]))
 
-game.parts.append(Battery("Small Battery", game, v2([500,700]), game.images["battery"]))
+game.parts.append(Attachable("Armor Plate", game, [500,500], game.images["armor"]))
 
-game.parts.append(Attachable("Armor Plate", game, v2([500,900]), game.images["armor"]))
+game.parts.append(WeaponClamp("Armament Clamp", game, [500,500], game.images["turret_base"]))
 
-game.parts.append(Attachable("Armor Plate", game, v2([500,900]), game.images["armor"]))
+game.parts.append(Turret("Kinetic Cannon", game, [500,500], game.images["turret"], center = [10,78]))
 
-game.parts.append(Attachable("Armor Plate", game, v2([500,950]), game.images["armor"]))
+game.parts.append(CeilingClamp("Ceiling Clamp", game, [600,600], game.images["turret_ceiling"]))
 
-game.parts.append(Attachable("Armor Plate", game, v2([500,900]), game.images["armor"]))
-
-game.parts.append(WeaponClamp("Armament Clamp", game, v2([900,900]), game.images["turret_base"]))
-
-game.parts.append(Turret("Kinetic Cannon", game, v2([1000,900]), game.images["turret"], center = [10,78]))
-
-game.parts.append(WeaponClamp("Armament Clamp", game, v2([900,900]), game.images["turret_base"]))
-
-game.parts.append(Turret("Kinetic Cannon", game, v2([1000,900]), game.images["turret"], center = [10,78]))
 
 
 
@@ -105,17 +98,18 @@ while 1:
     parts_dist = {}
     parts_size = {}
     for core_part in game.parts:
-        parts_dist[core.func.get_dist_points(core_part.pos, game.mouse_pos)] = core_part
-        x,y = core_part.image[game.zoom].get_size()
-        size = round(x*y)
-        if size not in parts_size:
-            parts_size[size] = [core_part]
+        if core_part.rect.collidepoint(game.mouse_pos):
+            parts_dist[core.func.get_dist_points(core_part.pos, game.mouse_pos)] = core_part
+        depth = core_part.recursive_get_parent_depth(0)
+        if depth not in parts_size:
+            parts_size[depth] = [core_part]
         else:
-            parts_size[size].append(core_part)
+            parts_size[depth].append(core_part)
         core_part.closest = False
-    closest_part = parts_dist[min(parts_dist.keys())]
-    closest_part.closest = True
-    for part_list in sorted(parts_size, reverse = True):
+    if parts_dist:
+        closest_part = parts_dist[min(parts_dist.keys())]
+        closest_part.closest = True
+    for part_list in sorted(parts_size):
         for part in parts_size[part_list]:
             part.tick()
 
