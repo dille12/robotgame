@@ -7,16 +7,18 @@ from core.gametick import GameTick
 from numpy import array as v2
 
 from robot_parts.part import Part
-from robot_parts.r_core import Core
+from robot_parts.cores import Core, SmallCore
 from robot_parts.battery import Battery
-from robot_parts.turret import Turret
+from robot_parts.commandmodule import CommandModule
+from robot_parts.turret import KineticCannon, MachineGun
 from robot_parts.weapon_clamp import WeaponClamp
 from robot_parts.ceiling_clamp import CeilingClamp
+from robot_parts.armor import *
+
 
 from robot_parts.rack import Rack
-
-
-
+from core.game_tick_build import tick_build
+from core.game_tick_drive import tick_drive
 from robot_parts.attachable import Attachable
 
 from hud_elements.button import Button
@@ -35,6 +37,7 @@ class Game:
         self.screen = screen
         self.size_conv = [1,1]
         self.res = (1920, 1080)
+        self.res2 = v2([1920, 1080])
         self.keypress = []
         self.keypress_held_down = []
         self.terminal = {}
@@ -44,14 +47,44 @@ class Game:
         self.sound_volume = 1
         self.zoom = 0
         self.camera_pos = v2([0,0])
+        self.camera_pos_target = v2([0,0])
         self.parts = []
         self.GT = GameTick
         self.darkened_surface = pygame.Surface(self.res).convert_alpha()
         self.darkened_surface.fill((0,0,0))
         self.darkened_surface.set_alpha(155)
 
+        self.last_mass = 0
+        self.last_battery_capacity = 0
+        self.mass = 0
+        self.battery_life = 0
+
+        self.hud_tick = GameTick(22, oneshot = True)
+
+        self.state = "build"
+
+        self.draw_modules_on_top = []
+
         load_images(self, self.size_conv)
         load_sounds(self)
+
+    def campos(self, pos):
+        return pos - self.camera_pos
+
+    def quicktext(self, text, size, pos):
+        text_surf = self.terminal[size].render(text, False, [255,255,255])
+        self.screen.blit(text_surf, pos)
+
+    def camera_movement(self):
+        camera_panning = 0.15
+        self.camera_pos = core.func.minus(
+            self.camera_pos,
+            core.func.minus(
+                core.func.minus(self.camera_pos_target, self.camera_pos, op="-"),
+                [camera_panning, camera_panning],
+                op="*",
+            ),
+        )
 
 
 
@@ -59,24 +92,32 @@ class Game:
 
 game = Game(screen)
 
-game.parts.append(Core("Core", game, [500,500], game.images["core_temp"]))
+#game.parts.append(Core("Core", game, [500,500], game.images["core_temp"]))
 
-game.parts.append(Rack("Rack", game, [500,500], game.images["rack"]))
+game.parts.append(SmallCore("Small Core", game, [600,500], game.images["tank"]))
+
+game.parts.append(Rack("Rack", game, [600,500], game.images["rack"]))
 
 game.parts.append(Battery("Small Battery", game, [500,500], game.images["battery"]))
 
-game.parts.append(Attachable("Armor Plate", game, [500,500], game.images["armor"]))
+game.parts.append(CommandModule("Command Module", game, [500,700], game.images["commandmodule"]))
+
+game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
+
+game.parts.append(CarbonCompositeArmor("Carbonfiber Armor", game, [500,500], game.images["armor"]))
 
 game.parts.append(WeaponClamp("Armament Clamp", game, [500,500], game.images["turret_base"]))
 
-game.parts.append(Turret("Kinetic Cannon", game, [500,500], game.images["turret"], center = [10,78]))
+game.parts.append(KineticCannon("Kinetic Cannon", game, [500,500], game.images["turret"], center = [10,78]))
+
+game.parts.append(MachineGun("Machine Gun", game, [500,500], game.images["turret_machine"], center = [10,50]))
 
 game.parts.append(CeilingClamp("Ceiling Clamp", game, [600,600], game.images["turret_ceiling"]))
 
 
 
 
-b1 = Button(game, 10,10, "Moro", font = 50, dont_center = True)
+b1 = Button(game, 10,10, "Drive!", font = 50, dont_center = True)
 
 while 1:
     clock.tick(60)
@@ -90,38 +131,15 @@ while 1:
         if event.type == pygame.QUIT:
             sys.exit()
 
-    game.screen.fill((102, 153, 255))
 
-    if b1.tick():
-        pass
-    dist = 10000
-    parts_dist = {}
-    parts_size = {}
-    for core_part in game.parts:
-        if core_part.rect.collidepoint(game.mouse_pos):
-            parts_dist[core.func.get_dist_points(core_part.pos, game.mouse_pos)] = core_part
-        depth = core_part.recursive_get_parent_depth(0)
-        if depth not in parts_size:
-            parts_size[depth] = [core_part]
-        else:
-            parts_size[depth].append(core_part)
-        core_part.closest = False
-    if parts_dist:
-        closest_part = parts_dist[min(parts_dist.keys())]
-        closest_part.closest = True
-    for part_list in sorted(parts_size):
-        for part in parts_size[part_list]:
-            part.tick()
+    if game.state == "build":
+        game.screen.fill((102, 153, 255))
+        if b1.tick():
+            game.state = "drive"
+        tick_build(game)
+    elif game.state == "drive":
+        game.screen.fill((0, 153, 0))
 
-    active_part = None
-    for x in game.parts:
-        if x.active and not x.moving and not x.rotate_turret:
-            x.active_game_tick.tick()
-
-            x.draw_info_box()
-
-            break
-        else:
-            x.active_game_tick.value = 0
+        tick_drive(game)
 
     pygame.display.update()

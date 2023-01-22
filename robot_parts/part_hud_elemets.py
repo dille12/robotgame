@@ -88,11 +88,14 @@ class Part_HUD_Elements:
 
         self.quicktext(self.name, 30, def_pos + [4,4], area = blit_area)
 
+        y_pos = 70
 
-
-
-        self.quicktext(f"Modular type: {self.modular_type}", 15, def_pos + [4,70], area = blit_area)
-        self.quicktext(f"Links to: {self.modular_compability}", 15, def_pos + [4,90], area = blit_area)
-        self.quicktext(f"Extendable" if self.extendable else "Not extendable", 15, def_pos + [4,110], area = blit_area)
-
-        self.quicktext(f"Depth: {self.recursive_get_parent_depth(0)}", 15, def_pos + [4,130], area = blit_area)
+        for key in self.desc:
+            end = self.desc[key][1]
+            value = self.__dict__[self.desc[key][0]]
+            if key == "Description: ":
+                self.quicktext(f"{value}" , 15, def_pos + [4,y_pos], area = blit_area)
+                y_pos += 10
+            else:
+                self.quicktext(f"{key}{value}{end}", 15, def_pos + [4,y_pos], area = blit_area)
+            y_pos += 20

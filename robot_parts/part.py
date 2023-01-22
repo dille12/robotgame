@@ -24,7 +24,6 @@ class Part(Part_HUD_Elements):
         self.angle = 0
         self.extendable = False
         self.center = v2(self.image[self.g.zoom].get_rect().center)
-        self.delta_to_parent = v2([0,0])
         self.modular_compability = ["None"]
         self.modular_type = "None"
         self.parent_angle_difference = 0
@@ -33,6 +32,20 @@ class Part(Part_HUD_Elements):
         self.delta_to_parent = None
         self.closest = False
         self.active_game_tick = self.g.GT(22, oneshot = True)
+        self.core = False
+        self.battery_life = 0
+        self.tracks = None
+        self.description = ""
+        self.mass = 0
+        self.satellite = None
+        self.sensory_range = 0
+        self.desc = {
+            "Description: " : ["description", ""],
+            "Modular type: " : ["modular_type", ""],
+            "Links to:" : ["modular_compability", ""],
+            "Mass: " : ["mass", "kg"],
+            "Battery Capacity: " : ["battery_life", "Wh"],
+        }
 
     def recursive_get_parent_depth(self, depth):
         if self.parent:
@@ -115,15 +128,14 @@ class Part(Part_HUD_Elements):
 
                     modules.append([part.pos + pos, y, part])
 
+                    self.g.draw_modules_on_top.append(part.pos + pos)
+
             min_dist = 1000
             curr_module = None
             for module_pos, module, part in modules:
 
                 px, py = self.image[self.g.zoom].get_size()
 
-                rect = pygame.Rect(module_pos[0], module_pos[1],0,0)
-                rect.inflate_ip(20,20)
-                pygame.draw.rect(self.g.screen, [0,255,0], rect, 1)
 
 
                 dist = core.func.get_dist_points(self.g.mouse_pos, module_pos)
@@ -169,9 +181,31 @@ class Part(Part_HUD_Elements):
 
         self.delta_to_parent = None
 
+    def draw_satellite(self, pos, angle):
+        if self.satellite:
+            center = core.func.rotate_point(self.satellite_center, angle)
+            r_image, r_rect = core.func.rot_center(self.satellite[self.g.zoom], angle + self.satellite_angle, pos[0] + center[0], pos[1] + center[1])
+            self.g.screen.blit(r_image, [r_rect.x, r_rect.y])
+            self.satellite_angle += 5
+            if self.satellite_angle > 360:
+                self.satellite_angle -= 360
+
+    def draw_tracks(self, pos = None):
+        if not isinstance(pos, numpy.ndarray):
+            pos = self.pos
+        if self.tracks:
+            rot, rect = core.func.rot_center(self.tracks.copy(), self.angle, pos[0], pos[1])
+            self.g.screen.blit(rot, (rect.x, rect.y))
 
 
-    def rotate_around_pivot(self, angle = None, center = None):
+
+
+    def rotate_around_pivot(self, angle = None, center = None, pos_override = None):
+        if isinstance(pos_override, numpy.ndarray):
+            pos = pos_override
+        else:
+            pos = self.pos
+
         if not angle:
             angle = self.angle
         if not center:
@@ -181,13 +215,54 @@ class Part(Part_HUD_Elements):
         vector = v2([int(realcenter[0]), int(realcenter[1])])
         offset = vector - self.center
 
-        center = self.pos + self.center
+        center = pos + self.center
 
         center_vector = pygame.math.Vector2(center[0], center[1])
 
         offset_vector = pygame.math.Vector2(offset[0], offset[1])
 
         return core.func.rotate(self.image[self.g.zoom].copy(), angle, center_vector, offset_vector)
+
+
+    def tick_drive(self):
+        parents = core.func.recursive_get_parents(self, [self])
+
+        total_angle = 0
+        total_delta_vector = v2([0,0])
+        for x in parents:
+            total_angle += x.angle
+            if x.parent:
+                total_delta_vector += x.delta_to_parent
+            else:
+                core_pos = x.pos
+                core_angle = x.angle
+
+
+        pos = self.g.campos(core.func.rotate_point(total_delta_vector, core_angle))
+
+        pos += core_pos
+
+        rotated, rot_rect = self.rotate_around_pivot(angle = total_angle, pos_override = pos)
+        self.rect = rot_rect
+        self.rect.x -= self.center[0]
+        self.rect.y -= self.center[1]
+        blitpos = [self.rect.x, self.rect.y]
+
+        self.draw_tracks(pos = pos)
+        self.g.screen.blit(rotated, blitpos)
+        self.draw_satellite(pos, total_angle)
+
+        pygame.draw.rect(self.g.screen, [255,255,255], (pos, (3,3)))
+
+    #    self.quicktext(f"{additions}", 20, blitpos)
+
+        for x in self.children:
+            x.tick_drive()
+
+
+
+
+
 
     def tick(self):
 
@@ -234,9 +309,6 @@ class Part(Part_HUD_Elements):
                 self.g.sounds["select"].stop()
                 self.g.sounds["select"].play()
 
-                print(self.modules)
-                print(self.center)
-
                 for x in self.g.parts:
                     if x != self:
                         x.active = False
@@ -249,6 +321,8 @@ class Part(Part_HUD_Elements):
                 self.moving = True
                 self.delta = self.g.mouse_pos - self.pos
 
+        pos_copy = numpy.copy(self.pos)
+
         if "mouse2" in self.g.keypress_held_down and self.moving and self.active:
             if self.attachable:
                 self.attach()
@@ -260,18 +334,24 @@ class Part(Part_HUD_Elements):
                 self.g.sounds["connect"].play()
             self.moving = False
 
+        delta = self.pos - pos_copy
+        self.rect.x += delta[0]
+        self.rect.y += delta[1]
 
-        blitpos = self.rect.x, self.rect.y
+        blitpos = [self.rect.x, self.rect.y]
 
-
+        self.draw_tracks()
 
         if on_top:
             rect1 = self.rect.copy()
             rect1.inflate_ip(8,8)
             pygame.draw.rect(self.g.screen, [255,255,255], rect1, 1 if not self.active else 3)
 
-        if self.turn_radius and self.active:
-            self.draw_turret_turn()
+        if self.active:
+            if self.turn_radius:
+                self.draw_turret_turn()
+            if self.sensory_range:
+                pygame.draw.circle(self.g.screen, [255,255,0], self.pos, self.sensory_range*100, 1)
 
         if self.rotate_turret:
             if "mouse2" not in self.g.keypress_held_down:
@@ -283,15 +363,9 @@ class Part(Part_HUD_Elements):
                 angle = math.degrees(math.atan2(self.g.mouse_pos[1] - self.pos[1], self.g.mouse_pos[0] - self.pos[0]))//5
                 self.angle =  - total - 90 - angle*5
 
-
-
-
-
-
-
-
-
         self.g.screen.blit(rotated, blitpos)
+
+        self.draw_satellite(self.pos, self.angle)
 
         pygame.draw.rect(self.g.screen, [255,255,255], (self.pos[0], self.pos[1], 3,3))
 

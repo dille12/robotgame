@@ -6,6 +6,7 @@ from robot_parts.module import Module
 class CeilingClamp(Part):
     def __init__(self, name, game, pos, image):
         super().__init__(name, game, pos, image)
+        self.description = "Can link cannons to modules."
         self.modular = True
 
         self.modules = (
@@ -13,3 +14,4 @@ class CeilingClamp(Part):
                         )
         self.modular_type = "Part"
         self.modular_compability = ["Weapon"]
+        self.mass = 4.5

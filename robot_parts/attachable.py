@@ -61,9 +61,9 @@ class Attachable(Part):
         self.pos[1] = y
 
         if dir in ["up", "down"]:
-            self.pos[1] -= center_rotated[1]
+            self.pos[1] -= center_rotated[1]*3/4
         else:
-            self.pos[0] -= center_rotated[0]
+            self.pos[0] -= center_rotated[0]*3/4
 
         self.move_children()
         text = self.g.terminal[10].render(dir, False, [255,255,255])

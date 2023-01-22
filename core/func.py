@@ -99,6 +99,12 @@ def render_text_glitch(
 def get_angle_diff(angle1, angle2):
     return (angle1 - angle2 + 180 + 360) % 360 - 180
 
+def recursive_get_parents(part, parents):
+    if part.parent:
+        parents.append(part.parent)
+        parents = recursive_get_parents(part.parent, parents)
+    return parents
+
 
 def list_play(list):
     for y in list:
