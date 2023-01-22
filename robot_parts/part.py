@@ -10,7 +10,7 @@ class Part(Part_HUD_Elements):
         super().__init__()
         self.name = name
         self.g = game
-        self.pos = v2(pos, dtype=numpy.int32)
+        self.pos = v2(pos, dtype=numpy.float64)
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 10, 10)
         self.image = image
         self.active = False
@@ -23,7 +23,7 @@ class Part(Part_HUD_Elements):
         self.modular = False
         self.angle = 0
         self.extendable = False
-        self.center = v2(self.image[self.g.zoom].get_rect().center)
+        self.center = v2(self.image[self.g.zoom].get_rect().center, dtype=numpy.float64)
         self.modular_compability = ["None"]
         self.modular_type = "None"
         self.parent_angle_difference = 0

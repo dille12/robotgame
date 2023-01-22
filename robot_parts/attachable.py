@@ -2,7 +2,7 @@ import core.func
 from robot_parts.part import Part
 import pygame
 from numpy import array as v2
-
+import numpy 
 class Attachable(Part):
     def __init__(self, name, game, pos, image):
         super().__init__(name, game, pos, image)
@@ -17,7 +17,7 @@ class Attachable(Part):
 
         posx = (self.g.mouse_pos[0])//5
         posy = (self.g.mouse_pos[1])//5
-        mp = v2([posx*5, posy*5])
+        mp = v2([posx*5, posy*5], dtype=numpy.float64)
 
 
         for part in self.g.parts:

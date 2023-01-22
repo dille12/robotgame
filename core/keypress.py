@@ -2,10 +2,11 @@ import pygame
 import core.func
 import sys
 from numpy import array as v2
+import numpy
 
 def key_press_manager(obj):
 
-    obj.mouse_pos = v2(core.func.minus(list(pygame.mouse.get_pos()), obj.size_conv, op="*"))
+    obj.mouse_pos = v2(core.func.minus(list(pygame.mouse.get_pos()), obj.size_conv, op="*"), dtype=numpy.float64)
     # obj.mouse_pos = pygame.mouse.get_pos()
     obj.events = pygame.event.get()
     for event in obj.events:

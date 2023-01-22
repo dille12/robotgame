@@ -21,10 +21,10 @@ def tick_drive(game):
         rads = 2*math.pi - math.radians(x.angle)
 
         if "w" in game.keypress_held_down:
-            x.pos += 3 * v2([math.cos(rads) * 3, math.sin(rads) * 3], dtype=numpy.int32)
+            x.pos += 3 * v2([math.cos(rads) * 3, math.sin(rads) * 3], dtype=numpy.float64)
 
         elif "s" in game.keypress_held_down:
-            x.pos -= 3 * v2([math.cos(rads) * 3, math.sin(rads) * 3], dtype=numpy.int32)
+            x.pos -= 3 * v2([math.cos(rads) * 3, math.sin(rads) * 3], dtype=numpy.float64)
 
         x.tick_drive()
 
