@@ -16,7 +16,9 @@ def load_sounds(game):
                 sound = pygame.mixer.Sound(f"sounds/{path}/{x}")
                 sound.set_volume(game.sound_volume)
                 game.loading = f"{path}/{x}"
-                game.sounds[x.removesuffix(".mp3")] = sound
+                x = x.removesuffix(".mp3")
+                x = x.removesuffix(".wav")
+                game.sounds[x] = sound
                 game.load_i += 1
             except Exception as e:
                 print(e)

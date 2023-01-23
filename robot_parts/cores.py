@@ -25,9 +25,6 @@ class Core(Part):
 
 
     def drive(self):
-
-
-
         for key in ["w", "s"]:
             if key in self.g.keypress_held_down:
                 if key in self.keypresses:
@@ -43,9 +40,6 @@ class Core(Part):
         if not self.shift_gear_tick.tick():
             return
 
-
-
-
         if "s" in self.g.keypress_held_down:
             self.vel -= 0.25
 
@@ -56,6 +50,9 @@ class Core(Part):
             self.angular_vel += 0.25 if "s" not in self.g.keypress_held_down else -0.25
         if "d" in self.g.keypress_held_down:
             self.angular_vel -= 0.25 if "s" not in self.g.keypress_held_down else -0.25
+
+
+    
 
 
 

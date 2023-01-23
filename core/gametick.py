@@ -14,5 +14,8 @@ class GameTick:
                 self.value = 0
             return True
 
+    def max_out(self):
+        self.value = self.max_value
+
     def rounded(self):
         return round(self.value)

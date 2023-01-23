@@ -96,8 +96,41 @@ def render_text_glitch(
         if lower_pos >= text_size[1]:
             lower_pos = text_size[1]
 
+def camera_aling(game):
+    game.camera_pos = [game.camera_pos[0] + game.res[0]/2, game.camera_pos[1] + game.res[1]/2]
+    game.camera_pos = [
+        game.camera_pos[0]
+        + (-game.camera_pos[0] + game.camera_pos_target[0]) * camera_breaking
+        - camera_offset[0],
+        game.camera_pos[1]
+        + (-game.camera_pos[1] + game.camera_pos_target[1]) * camera_breaking
+        - camera_offset[1],
+    ]
+    return
+
 def get_angle_diff(angle1, angle2):
     return (angle1 - angle2 + 180 + 360) % 360 - 180
+
+
+def angle_between_angles2(angle, angle1, angle2):
+
+    angle1, angle2 = sorted([angle1, angle2])
+
+    diff1 = get_angle_diff(angle1, angle2)
+
+    diff2 = get_angle_diff(angle1, angle)
+
+    return angle1 - diff1 >= angle1 - diff2 >= angle1 or angle1 - diff1 <= angle1 - diff2 <= angle1
+
+
+
+
+def angle_between_angles(angle, angle1, angle2):
+    mid = (angle1+angle2)/2 % 360
+    gap = abs(get_angle_diff(angle1, angle2)/2)
+    diff = get_angle_diff(angle, mid)
+    print(mid, gap , diff)
+    return mid - gap <= angle % 360 <= mid + gap
 
 def recursive_get_parents(part, parents):
     if part.parent:

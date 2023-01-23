@@ -41,6 +41,10 @@ class Part(Part_HUD_Elements):
         self.mass = 0
         self.satellite = None
         self.sensory_range = 0
+        self.turn_target = 0
+        self.turn = 0
+        self.turn_speed = 1
+
         self.desc = {
             "Description: " : ["description", ""],
             "Modular type: " : ["modular_type", ""],
@@ -244,7 +248,7 @@ class Part(Part_HUD_Elements):
 
         pos += core_pos
 
-        rotated, rot_rect = self.rotate_around_pivot(angle = total_angle, pos_override = pos)
+        rotated, rot_rect = self.rotate_around_pivot(angle = total_angle + self.turn, pos_override = pos)
         self.rect = rot_rect
         self.rect.x -= self.center[0]
         self.rect.y -= self.center[1]
@@ -253,13 +257,15 @@ class Part(Part_HUD_Elements):
         self.draw_tracks(pos = pos)
         self.g.screen.blit(rotated, blitpos)
         self.draw_satellite(pos, total_angle)
+        if self.modular_type == "Weapon":
+            self.tick_weapons(pos, total_angle)
 
         pygame.draw.rect(self.g.screen, [255,255,255], (pos, (3,3)))
 
     #    self.quicktext(f"{additions}", 20, blitpos)
 
-        for x in self.children:
-            x.tick_drive()
+        # for x in self.children:
+        #     x.tick_drive()
 
     def tick(self):
 

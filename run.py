@@ -1,13 +1,15 @@
 import pygame
 import random
 from random import randint as rint
+import random
 import sys
 import core.keypress
 from core.gametick import GameTick
 from numpy import array as v2
+import time
 
 from robot_parts.part import Part
-from robot_parts.cores import Core, SmallCore
+from robot_parts.cores import Core, SmallCore, BigCore
 from robot_parts.battery import Battery
 from robot_parts.commandmodule import CommandModule
 from robot_parts.turret import KineticCannon, MachineGun
@@ -53,11 +55,12 @@ class Game:
         self.darkened_surface = pygame.Surface(self.res).convert_alpha()
         self.darkened_surface.fill((0,0,0))
         self.darkened_surface.set_alpha(155)
-
+        self.v_magnitude = 0
         self.last_mass = 0
         self.last_battery_capacity = 0
         self.mass = 0
         self.battery_life = 0
+        self.bullets = []
 
         self.hud_tick = GameTick(22, oneshot = True)
 
@@ -68,6 +71,9 @@ class Game:
         load_images(self, self.size_conv)
         load_sounds(self)
 
+    def vibrate(self, magnitude):
+        self.v_magnitude += magnitude
+
     def campos(self, pos):
         return pos - self.camera_pos
 
@@ -76,6 +82,17 @@ class Game:
         self.screen.blit(text_surf, pos)
 
     def camera_movement(self):
+        camera_pan = 0.05
+        mouse_pos_var = [
+            camera_pan * (self.mouse_pos[0] - self.res[0] / 2),
+            camera_pan * (self.mouse_pos[1] - self.res[1] / 2),
+        ]
+
+        self.camera_pos[0] += mouse_pos_var[0] + random.uniform(-self.v_magnitude, self.v_magnitude)
+        self.camera_pos[1] += mouse_pos_var[1] + random.uniform(-self.v_magnitude, self.v_magnitude)
+
+        self.v_magnitude *= 0.9
+
         camera_panning = 0.15
         self.camera_pos = core.func.minus(
             self.camera_pos,
@@ -92,11 +109,9 @@ class Game:
 
 game = Game(screen)
 
-#game.parts.append(Core("Core", game, [500,500], game.images["core_temp"]))
+#game.parts.append(BigCore("Core", game, [500,500], game.images["core_temp"]))
 
 game.parts.append(SmallCore("Small Core", game, [600,500], game.images["tank"]))
-
-game.parts.append(Rack("Rack", game, [600,500], game.images["rack"]))
 
 game.parts.append(Battery("Small Battery", game, [500,500], game.images["battery"]))
 
@@ -131,6 +146,7 @@ while 1:
         if event.type == pygame.QUIT:
             sys.exit()
 
+    t = time.perf_counter()
 
     if game.state == "build":
         game.screen.fill((102, 153, 255))
@@ -141,5 +157,11 @@ while 1:
         game.screen.fill((0, 153, 0))
 
         tick_drive(game)
+
+    tick_time = time.perf_counter() - t
+
+    game.quicktext(f"{1/tick_time:.0f}fps", 20, (20,125))
+
+    game.quicktext(f"{tick_time/(1/60)*100:.0f}%", 20, (20,100))
 
     pygame.display.update()
