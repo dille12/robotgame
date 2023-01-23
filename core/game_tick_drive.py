@@ -12,20 +12,14 @@ def tick_drive(game):
             game.camera_pos_target = x.pos - game.res2/2
 
     for x in cores:
-        if "d" in game.keypress_held_down:
-            x.angle -= 1
 
-        if "a" in game.keypress_held_down:
-            x.angle += 1
-
+        x.drive()
+        x.angle += x.angular_vel
         rads = 2*math.pi - math.radians(x.angle)
-
-        if "w" in game.keypress_held_down:
-            x.pos += 3 * v2([math.cos(rads) * 3, math.sin(rads) * 3], dtype=numpy.float64)
-
-        elif "s" in game.keypress_held_down:
-            x.pos -= 3 * v2([math.cos(rads) * 3, math.sin(rads) * 3], dtype=numpy.float64)
-
+        vector = x.vel* v2([math.cos(rads), math.sin(rads)], dtype=numpy.float64)
+        x.pos += vector
+        x.vel *= 0.95
+        x.angular_vel *= 0.8
         x.tick_drive()
 
     game.quicktext(f"{game.camera_pos}", 30, [10,10])

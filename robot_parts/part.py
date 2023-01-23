@@ -11,6 +11,8 @@ class Part(Part_HUD_Elements):
         self.name = name
         self.g = game
         self.pos = v2(pos, dtype=numpy.float64)
+        self.vel = 0
+        self.angular_vel = 0
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 10, 10)
         self.image = image
         self.active = False
@@ -258,11 +260,6 @@ class Part(Part_HUD_Elements):
 
         for x in self.children:
             x.tick_drive()
-
-
-
-
-
 
     def tick(self):
 
