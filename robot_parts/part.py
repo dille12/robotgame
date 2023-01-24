@@ -6,6 +6,7 @@ from numpy import array as v2
 import numpy
 import math
 from hud_elements.battle_info import BattleInfo
+from projectiles.spark import Spark
 
 class Part(Part_HUD_Elements):
     def __init__(self, name, game, pos, image):
@@ -17,6 +18,7 @@ class Part(Part_HUD_Elements):
         self.angular_vel = 0
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 10, 10)
         self.image = image
+        self.image_rect = image[self.g.zoom].get_rect()
         self.active = False
         self.sell_button = Button(game, 10,80, f"Sell: {self.name}", font = 50, dont_center = True)
         self.moving = False
@@ -49,6 +51,7 @@ class Part(Part_HUD_Elements):
         self.info = None
         self.mask = None
         self.highest_parent = None
+        self.hull = 200
 
         self.desc = {
             "Description: " : ["description", ""],
@@ -80,6 +83,19 @@ class Part(Part_HUD_Elements):
             total, total_angle = self.get_total_delta(part.parent, total, total_angle, end_point = end_point)
 
         return total, total_angle
+
+    def kill(self):
+        for i in range(10, 20):
+            Spark(self.real_pos, self.g)
+
+        self.info = BattleInfo(self.g.campos(self.real_pos), self, self.g, [255,0,0], "DESTROYED")
+        print("KILLING:", self.name)
+        children = self.recursive_get_children(self, [self])
+        for x in children:
+            if x in self.g.parts:
+                self.g.parts.remove(x)
+                x.unset_parent()
+        self.g.depth_sorted_parts = self.g.sort_parts_by_depth()
 
     def get_available_modules(self, part = None):
         modules = []
@@ -234,10 +250,34 @@ class Part(Part_HUD_Elements):
 
         return core.func.rotate(self.image[self.g.zoom].copy(), angle, center_vector, offset_vector)
 
-    #def impact_angle(self, point, angle):
+    def impact_angle(self, point, angle):
+        angle = math.radians(angle)
+        rotate_rect = self.image_rect.copy()
+        points = core.func.rotate_rectangle_around_pivot(rotate_rect, self.real_angle, self.center)
+        for point_1 in points:
+            point_1 += self.pos - self.center
+
+        side = core.func.collision_side_2(points, point, angle)
+        if not side:
+            self.g.misses += 1
+            return
+        #side = points[(4+side_index-1) %4], points[side_index]
+
+        #print(side)
+
+
+        pygame.draw.line(self.g.screen, [255,0,0], self.g.campos(side[0]), self.g.campos(side[1]), 4)
+
+        return core.func.mirror_angle_2(math.degrees(angle), side[0], side[1])
+
+        #pygame.draw.line(self.g.screen, [0,255,255], self.g.campos(point), self.g.campos(point + core.func.angle_vector(angle, 200)), 10)
 
 
     def tick_drive(self):
+
+        if self.hull < 0:
+            self.kill()
+            return
 
         if not self.highest_parent:
             self.highest_parent = self.get_highest_parent(self)
@@ -283,6 +323,8 @@ class Part(Part_HUD_Elements):
 
         self.real_pos = self.g.rev_campos(pos)
         self.real_angle = total_angle + self.turn
+
+
 
     #    self.quicktext(f"{additions}", 20, blitpos)
 
@@ -393,6 +435,8 @@ class Part(Part_HUD_Elements):
         self.draw_satellite(self.pos, self.angle)
 
         pygame.draw.rect(self.g.screen, [255,255,255], (self.pos[0], self.pos[1], 3,3))
+
+
 
 
 

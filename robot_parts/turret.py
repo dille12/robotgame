@@ -51,7 +51,7 @@ class Turret(Part):
             self.g.sounds[self.sound].stop()
             self.g.sounds[self.sound].play()
             self.g.vibrate(self.shake)
-            self.g.bullets.append(Projectile(self.highest_parent, self.g, self.g.rev_campos(pos), 270-angle - self.turn + random.uniform(-self.recoil, self.recoil)))
+            self.g.bullets.append(Projectile(self.highest_parent, self.g, self.g.rev_campos(pos), 270-angle - self.turn + random.uniform(-self.recoil, self.recoil), caliper = self.bullet_caliper))
             self.ammo_in_clip -= 1
 
 

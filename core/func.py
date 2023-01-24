@@ -111,6 +111,10 @@ def camera_aling(game):
 def get_angle_diff(angle1, angle2):
     return (angle1 - angle2 + 180 + 360) % 360 - 180
 
+def get_angle_diff_rad(angle1, angle2):
+    # Calculates the difference of two angles in radians
+    return (angle1 - angle2 + math.pi + 2*math.pi) % 2*math.pi - math.pi
+
 
 def angle_between_angles2(angle, angle1, angle2):
 
@@ -173,6 +177,86 @@ def pivot_child_around_parent(part):
         print("<<<<<<<<<<<<<<<")
 
 
+def rotate_rectangle_around_pivot(rect, angle, pivot):
+
+    rect_points = [rect.topleft, rect.topright, rect.bottomright, rect.bottomleft]
+    # translate rectangle so that pivot is at the origin
+    translated_points = []
+    for point in rect_points:
+        translated_points.append([point[0]-pivot[0], point[1]-pivot[1]])
+    # rotate the rectangle
+    rotated_points = []
+    for point in translated_points:
+        rotated_points.append(rotate_point(point, angle))
+    # translate the rectangle back
+    final_points = []
+    for point in rotated_points:
+        final_points.append(v2([point[0]+pivot[0], point[1]+pivot[1]]))
+    return final_points
+
+def angle_vector(angle, magnitude):
+    return v2([math.cos(angle), math.sin(angle)]) * magnitude
+
+
+def rotate_rectangle(rect, angle):
+
+
+
+    rotated_points = []
+    for point in rect_points:
+        rotated_points.append(rotate_point(point, angle))
+    return rotated_points
+
+def ccw(A, B, C):
+    return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
+
+
+def intersect(A, B, C, D):
+    return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
+
+
+def collision_side_2(rect_points, inside_point, insertion_angle):
+    # calculate the endpoint of the line
+
+    inside_point[0] += math.cos(insertion_angle) * 10
+    inside_point[1] += math.sin(insertion_angle) * 10
+
+    end_x = inside_point[0] + math.cos(insertion_angle + math.pi) * 20
+    end_y = inside_point[1] + math.sin(insertion_angle + math.pi) * 20
+    end_point = (end_x, end_y)
+    # check for intersection with each side of the rectangle
+    for i in range(4):
+        side1 = rect_points[i]
+        side2 = rect_points[(i+1) % 4]
+        if intersect(inside_point, end_point, side1, side2):
+            return (side1, side2)
+    return None
+
+def collision_side(rect_points, inside_point, insertion_angle):
+    # calculate the angle of each side of the rectangle
+    rect_angles = []
+    for i in range(4):
+        side1 = rect_points[i]
+        side2 = rect_points[(i+1) % 4]
+        dx = side2[0] - side1[0]
+        dy = side2[1] - side1[1]
+        rect_angle = math.atan2(dy, dx)
+        rect_angles.append(rect_angle)
+    # find the closest angle
+    min_diff = float('inf')
+    closest_side = None
+    for i, rect_angle in enumerate(rect_angles):
+        diff = abs(get_angle_diff_rad(rect_angle, insertion_angle))
+        if diff < min_diff:
+            min_diff = diff
+            closest_side = i
+    return (rect_points[closest_side], rect_points[(closest_side+1)%4])
+
+def mirror_angle_2(angle, line_point1, line_point2):
+    angle = math.radians(angle)
+    line_angle = math.atan2(line_point2[1] - line_point1[1], line_point2[0] - line_point1[0])
+    reflected_angle = 2 * line_angle - angle
+    return math.degrees(reflected_angle)
 
 def rot_center(image, angle, x, y):
 

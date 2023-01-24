@@ -35,6 +35,5 @@ def load_images(game, size_conversion):
                 game.images[x.removesuffix(".png")][i] = image
                 game.load_i += 1
 
-        print(game.images)
 # if __name__ == "__main__":
 #     load_images(game, 1)

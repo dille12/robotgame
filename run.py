@@ -62,7 +62,9 @@ class Game:
         self.battery_life = 0
         self.bullets = []
         self.particles = []
-
+        self.impacts = []
+        self.tick_time = 1/60
+        self.misses = 0
         self.hud_tick = GameTick(22, oneshot = True)
 
         self.state = "build"
@@ -71,6 +73,36 @@ class Game:
 
         load_images(self, self.size_conv)
         load_sounds(self)
+
+    def sort_parts_by_depth(self):
+        parts = {}
+        for x in self.parts:
+            depth = x.recursive_get_parent_depth(0)
+            if depth not in parts:
+                parts[depth] = [x]
+            else:
+                parts[depth].append(x)
+        return parts
+
+    def sound(self, key):
+
+        if key + "1" in self.sounds:
+            i = 0
+            sounds = []
+            while True:
+                i += 1
+                if key + str(i) in self.sounds:
+                    sounds.append(key + str(i))
+                else:
+                    break
+
+            key1 = random.choice(sounds)
+            self.sounds[key1].stop()
+            self.sounds[key1].play()
+            return
+
+        self.sounds[key].stop()
+        self.sounds[key].play()
 
     def vibrate(self, magnitude):
         self.v_magnitude += magnitude
@@ -168,6 +200,7 @@ while 1:
         game.screen.fill((102, 153, 255))
         if b1.tick():
             game.state = "drive"
+            game.depth_sorted_parts = game.sort_parts_by_depth()
         if b2.tick():
             game.print_robot_info()
         tick_build(game)
@@ -176,10 +209,15 @@ while 1:
 
         tick_drive(game)
 
-    tick_time = time.perf_counter() - t
+    game.tick_time =  game.tick_time * 9/10 + (time.perf_counter() - t) * 1/10
 
-    game.quicktext(f"{1/tick_time:.0f}fps", 20, (20,125))
+    for x in game.impacts:
+        pygame.draw.rect(game.screen, [255,0,0], (game.campos(x), (5,5)))
 
-    game.quicktext(f"{tick_time/(1/60)*100:.0f}%", 20, (20,100))
+    game.quicktext(f"{1/game.tick_time:.0f}fps", 20, (20,125))
+
+    game.quicktext(f"{game.tick_time/(1/60)*100:.0f}%", 20, (20,100))
+    game.quicktext(f"{game.misses}", 20, (20,150))
+
 
     pygame.display.update()
