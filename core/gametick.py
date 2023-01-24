@@ -17,5 +17,8 @@ class GameTick:
     def max_out(self):
         self.value = self.max_value
 
+    def ratio(self):
+        return min([self.value/self.max_value, 1])
+
     def rounded(self):
         return round(self.value)

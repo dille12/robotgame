@@ -61,6 +61,7 @@ class Game:
         self.mass = 0
         self.battery_life = 0
         self.bullets = []
+        self.particles = []
 
         self.hud_tick = GameTick(22, oneshot = True)
 
@@ -77,12 +78,26 @@ class Game:
     def campos(self, pos):
         return pos - self.camera_pos
 
+    def rev_campos(self, pos):
+        return pos + self.camera_pos
+
     def quicktext(self, text, size, pos):
         text_surf = self.terminal[size].render(text, False, [255,255,255])
         self.screen.blit(text_surf, pos)
 
+    def print_robot_info(self):
+        for x in self.parts:
+            if x.core:
+                children = x.recursive_get_children(x, [x])
+                break
+
+        for x in children:
+            print(x.name, x.pos)
+
+
+
     def camera_movement(self):
-        camera_pan = 0.05
+        camera_pan = 0.1
         mouse_pos_var = [
             camera_pan * (self.mouse_pos[0] - self.res[0] / 2),
             camera_pan * (self.mouse_pos[1] - self.res[1] / 2),
@@ -109,7 +124,7 @@ class Game:
 
 game = Game(screen)
 
-#game.parts.append(BigCore("Core", game, [500,500], game.images["core_temp"]))
+game.parts.append(BigCore("Core", game, [500,500], game.images["core_temp"]))
 
 game.parts.append(SmallCore("Small Core", game, [600,500], game.images["tank"]))
 
@@ -133,6 +148,7 @@ game.parts.append(CeilingClamp("Ceiling Clamp", game, [600,600], game.images["tu
 
 
 b1 = Button(game, 10,10, "Drive!", font = 50, dont_center = True)
+b2 = Button(game, 10,200, "Print Info", font = 50, dont_center = True)
 
 while 1:
     clock.tick(60)
@@ -152,6 +168,8 @@ while 1:
         game.screen.fill((102, 153, 255))
         if b1.tick():
             game.state = "drive"
+        if b2.tick():
+            game.print_robot_info()
         tick_build(game)
     elif game.state == "drive":
         game.screen.fill((0, 153, 0))

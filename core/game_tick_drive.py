@@ -17,7 +17,7 @@ def tick_drive(game):
     for x in cores:
 
         x.drive()
-        x.angle += x.angular_vel
+        x.angle += (x.angular_vel * (1 - 0.5/(1+abs(x.vel))))
         rads = 2*math.pi - math.radians(x.angle)
         vector = x.vel* v2([math.cos(rads), math.sin(rads)], dtype=numpy.float64)
         x.pos += vector
@@ -37,10 +37,10 @@ def tick_drive(game):
                 part.tick_drive()
 
 
-
-
-
     for x in game.bullets:
+        x.tick()
+
+    for x in game.particles:
         x.tick()
 
     game.quicktext(f"{game.camera_pos}", 30, [10,10])

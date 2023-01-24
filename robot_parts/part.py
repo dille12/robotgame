@@ -5,6 +5,8 @@ import core.func
 from numpy import array as v2
 import numpy
 import math
+from hud_elements.battle_info import BattleInfo
+
 class Part(Part_HUD_Elements):
     def __init__(self, name, game, pos, image):
         super().__init__()
@@ -44,6 +46,9 @@ class Part(Part_HUD_Elements):
         self.turn_target = 0
         self.turn = 0
         self.turn_speed = 1
+        self.info = None
+        self.mask = None
+        self.highest_parent = None
 
         self.desc = {
             "Description: " : ["description", ""],
@@ -229,8 +234,14 @@ class Part(Part_HUD_Elements):
 
         return core.func.rotate(self.image[self.g.zoom].copy(), angle, center_vector, offset_vector)
 
+    #def impact_angle(self, point, angle):
+
 
     def tick_drive(self):
+
+        if not self.highest_parent:
+            self.highest_parent = self.get_highest_parent(self)
+
         parents = core.func.recursive_get_parents(self, [self])
 
         total_angle = 0
@@ -256,11 +267,22 @@ class Part(Part_HUD_Elements):
 
         self.draw_tracks(pos = pos)
         self.g.screen.blit(rotated, blitpos)
+
+        self.mask = pygame.mask.from_surface(rotated)
+        self.maskpos = self.g.rev_campos(blitpos)
+
+        #self.g.screen.blit(self.mask.to_surface(), blitpos)
+
         self.draw_satellite(pos, total_angle)
         if self.modular_type == "Weapon":
             self.tick_weapons(pos, total_angle)
 
         pygame.draw.rect(self.g.screen, [255,255,255], (pos, (3,3)))
+        if self.info:
+            self.info.tick(pos)
+
+        self.real_pos = self.g.rev_campos(pos)
+        self.real_angle = total_angle + self.turn
 
     #    self.quicktext(f"{additions}", 20, blitpos)
 

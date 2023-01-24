@@ -61,6 +61,7 @@ class Part_HUD_Elements:
     def draw_info_box(self):
         value = self.active_game_tick.value
         ratio = value/self.active_game_tick.max_value
+        ratio_rev = 1 - ratio
         quarter = [0,0]
 
         quarter[0] = 1 if self.pos[0] < self.g.res[0]/2 else -1
@@ -86,7 +87,11 @@ class Part_HUD_Elements:
 
         pygame.draw.rect(self.g.screen, [255,255,255], rect, 4)
 
-        self.quicktext(self.name, 30, def_pos + [4,4], area = blit_area)
+        text = self.g.terminal[30].render(self.name, False, [255,255,255])
+
+        self.g.screen.blit(text, def_pos + [4 ,4], area = [text.get_rect().w * ratio_rev ** 5, 0 , blit_area[2], blit_area[3]])
+
+    #    self.quicktext(self.name, 30, )
 
         y_pos = 70
 

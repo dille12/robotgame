@@ -20,7 +20,7 @@ def shift_integrand(integrand, track_power, mass, shift = 0):
 class Core(Part):
     def __init__(self, name, game, pos, image):
         super().__init__(name, game, pos, image)
-        self.shift_gear_tick = self.g.GT(15, oneshot=True)
+        self.shift_gear_tick = self.g.GT(30, oneshot=True)
         self.keypresses = []
 
 
@@ -52,7 +52,7 @@ class Core(Part):
             self.angular_vel -= 0.25 if "s" not in self.g.keypress_held_down else -0.25
 
 
-    
+
 
 
 

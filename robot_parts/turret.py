@@ -5,6 +5,8 @@ import pygame
 import core.func
 from projectiles.projectile import Projectile
 import random
+from hud_elements.battle_info import BattleInfo
+
 
 class Turret(Part):
     def __init__(self, name, game, pos, image, center = None):
@@ -19,7 +21,7 @@ class Turret(Part):
         self.modular_type = "Weapon"
 
         self.ammo_in_clip = 0
-        self.reload_tick = self.g.GT(60, oneshot = True)
+        self.reload_tick = self.g.GT(120, oneshot = True)
         self.reload_tick.max_out()
 
         self.recoil = 2
@@ -31,12 +33,28 @@ class Turret(Part):
         self.desc["Rounds In Clip: "] = ["clip_size", "r"]
 
     def fire(self, pos, angle):
+
+        if not self.reload_tick.tick():
+            self.ammo_in_clip = self.clip_size
+            if self.info:
+                self.info.text = f"Reloading {round(self.reload_tick.value*100/self.reload_tick.max_value)}%"
+
+            return
+
+        if self.ammo_in_clip == 0 or ("r" in self.g.keypress):
+            self.reload_tick.value = 0
+            self.info = BattleInfo(pos, self, self.g, [255,0,0], "Reloading 0%")
+            return
+
         if "mouse0" in self.g.keypress_held_down and self.firing_tick <= 0:
             self.firing_tick += 1/(self.rpm/3600)
             self.g.sounds[self.sound].stop()
             self.g.sounds[self.sound].play()
             self.g.vibrate(self.shake)
-            self.g.bullets.append(Projectile(self.g, pos, 270-angle - self.turn + random.uniform(-self.recoil, self.recoil)))
+            self.g.bullets.append(Projectile(self.highest_parent, self.g, self.g.rev_campos(pos), 270-angle - self.turn + random.uniform(-self.recoil, self.recoil)))
+            self.ammo_in_clip -= 1
+
+
 
     def tick_weapons(self, pos, angle):
 
@@ -91,12 +109,12 @@ class KineticCannon(Turret):
         super().__init__(name, game, pos, image, center = center)
         self.bullet_caliper = 25
         self.description = "Slow cannon with high caliper."
-        self.rpm = 100
+        self.rpm = 98
         self.clip_size = 10
         self.mass = 45
         self.turn_radius = 45
         self.sound = "cannon_fire_large"
-        self.shake = 8
+        self.shake = 5
 
 
 
@@ -109,7 +127,7 @@ class MachineGun(Turret):
         self.description = "Fast firing machine gun with low stopping power."
         self.mass = 30
         self.turn_radius = 70
-        self.rpm = 450
+        self.rpm = 567
         self.clip_size = 100
         self.sound = "cannon_fire_medium"
         self.shake = 2
