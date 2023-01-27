@@ -2,9 +2,13 @@ import pygame
 import os
 from os import listdir
 from os.path import isfile, join
+import core.func
 
 
 def load_images(game, size_conversion):
+
+
+    game.explosion = core.func.load_animation("anim/expl1", 10, 41)
 
     for x in range(1, 151):
         game.terminal[x] = pygame.font.Font(

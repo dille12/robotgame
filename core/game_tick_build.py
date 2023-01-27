@@ -1,6 +1,9 @@
 from hud_elements.build_hud import draw_build_hud
 import pygame
 import core.func
+from numpy import array as v2
+import numpy
+
 
 def tick_build(game):
     dist = 10000
@@ -22,6 +25,15 @@ def tick_build(game):
     for part_list in sorted(parts_size):
         for part in parts_size[part_list]:
             part.tick()
+
+    not_connected = game.get_parts_not_connected()
+
+    i = len(not_connected)
+    for num, x in enumerate(not_connected):
+        x.pos = v2([1650, game.res[1]/2 - i/2 * 60 + num * 60], dtype = numpy.float64)
+        game.quicktext(x.name, 20, x.pos + [40,-5])
+        for y in x.recursive_get_children(x, []):
+            y.unset_parent()
 
     for x in game.draw_modules_on_top:
         rect = pygame.Rect(x[0], x[1],0,0)

@@ -9,15 +9,11 @@ from hud_elements.battle_info import BattleInfo
 
 
 class Turret(Part):
-    def __init__(self, name, game, pos, image, center = None):
+    def __init__(self, name, game, pos, image):
         super().__init__(name, game, pos, image)
 
         self.modular = True
         self.battery_life = 0
-        if center:
-            self.center[0] = int(center[0])
-            self.center[1] = int(center[1])
-
         self.modular_type = "Weapon"
 
         self.ammo_in_clip = 0
@@ -31,6 +27,10 @@ class Turret(Part):
         self.desc["Projectile Caliper: "] = ["bullet_caliper", "mm"]
         self.desc["Rounds Per Minute: "] = ["rpm", "r/m"]
         self.desc["Rounds In Clip: "] = ["clip_size", "r"]
+        self.desc["Max Rotation: "] = ["turn_radius", " degrees"]
+        self.desc["Rotation speed: "] = ["turn_speed_second", " degrees/s"]
+        self.desc["Turning Power: "] = ["turn_power", "W"]
+        self.desc["Firing Power: "] = ["firing_power", "W"]
 
     def fire(self, pos, angle):
 
@@ -53,6 +53,7 @@ class Turret(Part):
             self.g.vibrate(self.shake)
             self.g.bullets.append(Projectile(self.highest_parent, self.g, self.g.rev_campos(pos), 270-angle - self.turn + random.uniform(-self.recoil, self.recoil), caliper = self.bullet_caliper))
             self.ammo_in_clip -= 1
+            self.g.battery_consumption += self.firing_power * (self.rpm/216000)
 
 
 
@@ -94,8 +95,10 @@ class Turret(Part):
 
         elif self.turn < self.turn_target:
             self.turn += self.turn_speed
+            self.g.battery_consumption += self.turn_power / 216000
         else:
             self.turn -= self.turn_speed
+            self.g.battery_consumption += self.turn_power / 216000
 
         if self.firing_tick > 0:
             self.firing_tick -= 1
@@ -105,8 +108,8 @@ class Turret(Part):
 
 
 class KineticCannon(Turret):
-    def __init__(self, name, game, pos, image, center = None):
-        super().__init__(name, game, pos, image, center = center)
+    def __init__(self, name, game, pos, image):
+        super().__init__(name, game, pos, image)
         self.bullet_caliper = 25
         self.description = "Slow cannon with high caliper."
         self.rpm = 98
@@ -115,14 +118,19 @@ class KineticCannon(Turret):
         self.turn_radius = 45
         self.sound = "cannon_fire_large"
         self.shake = 5
+        self.firing_power = 1750
+        self.turn_power = 75
+        self.turn_speed = 0.25
+        self.turn_speed_second = self.turn_speed*60
+        self.center = v2([10,78])
 
 
 
 
 
 class MachineGun(Turret):
-    def __init__(self, name, game, pos, image, center = None):
-        super().__init__(name, game, pos, image, center = center)
+    def __init__(self, name, game, pos, image):
+        super().__init__(name, game, pos, image)
         self.bullet_caliper = 7.62
         self.description = "Fast firing machine gun with low stopping power."
         self.mass = 30
@@ -131,3 +139,8 @@ class MachineGun(Turret):
         self.clip_size = 100
         self.sound = "cannon_fire_medium"
         self.shake = 2
+        self.firing_power = 250
+        self.turn_power = 50
+        self.turn_speed = 0.5
+        self.turn_speed_second = self.turn_speed*60
+        self.center = v2([10,50])

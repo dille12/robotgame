@@ -38,7 +38,7 @@ class Projectile:
         for i in range(self.divisions):
             self.pos += self.vector
 
-            for depth in self.g.depth_sorted_parts:
+            for depth in sorted(self.g.depth_sorted_parts, reverse = True):
                 for part in self.g.depth_sorted_parts[depth]:
                     if part.mask and part.highest_parent != self.owner:
                         point = part.mask.overlap(self.mask, - part.maskpos + self.pos)

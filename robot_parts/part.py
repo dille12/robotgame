@@ -7,6 +7,7 @@ import numpy
 import math
 from hud_elements.battle_info import BattleInfo
 from projectiles.spark import Spark
+from projectiles.explosion import Explosion
 
 class Part(Part_HUD_Elements):
     def __init__(self, name, game, pos, image):
@@ -52,6 +53,9 @@ class Part(Part_HUD_Elements):
         self.mask = None
         self.highest_parent = None
         self.hull = 200
+        self.draw_angle = 69
+        self.passive_consumption = 0
+        self.angle_to_parent = 0
 
         self.desc = {
             "Description: " : ["description", ""],
@@ -87,6 +91,11 @@ class Part(Part_HUD_Elements):
     def kill(self):
         for i in range(10, 20):
             Spark(self.real_pos, self.g)
+
+        if self.core:
+            print(self.real_pos)
+            Explosion(self.g, self.real_pos)
+            self.g.vibrate(35)
 
         self.info = BattleInfo(self.g.campos(self.real_pos), self, self.g, [255,0,0], "DESTROYED")
         print("KILLING:", self.name)
@@ -255,7 +264,12 @@ class Part(Part_HUD_Elements):
         rotate_rect = self.image_rect.copy()
         points = core.func.rotate_rectangle_around_pivot(rotate_rect, self.real_angle, self.center)
         for point_1 in points:
-            point_1 += self.pos - self.center
+            point_1 += self.real_pos - self.center
+
+        # i1 = points[-1]
+        # for i in points:
+        #     pygame.draw.line(self.g.screen, [255,0,0], self.g.campos(i), self.g.campos(i1), 4)
+        #     i1 = i
 
         side = core.func.collision_side_2(points, point, angle)
         if not side:
@@ -294,8 +308,9 @@ class Part(Part_HUD_Elements):
                 core_pos = x.pos
                 core_angle = x.angle
 
-
-        pos = self.g.campos(core.func.rotate_point(total_delta_vector, core_angle))
+        self.draw_angle = total_angle + self.turn
+        self.delta_vector = core.func.rotate_point(total_delta_vector, core_angle)
+        pos = self.g.campos(self.delta_vector)
 
         pos += core_pos
 
@@ -304,6 +319,7 @@ class Part(Part_HUD_Elements):
         self.rect.x -= self.center[0]
         self.rect.y -= self.center[1]
         blitpos = [self.rect.x, self.rect.y]
+
 
         self.draw_tracks(pos = pos)
         self.g.screen.blit(rotated, blitpos)
@@ -346,8 +362,6 @@ class Part(Part_HUD_Elements):
                                                                                 end_point = self)
         else:
             self.total_delta_pos, self.total_delta_angle = v2([0,0]), self.angle
-
-
 
         if self.total_delta_angle:
             rotated, rot_rect = self.rotate_around_pivot(angle = self.total_delta_angle)

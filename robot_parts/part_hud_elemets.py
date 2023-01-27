@@ -89,7 +89,9 @@ class Part_HUD_Elements:
 
         text = self.g.terminal[30].render(self.name, False, [255,255,255])
 
-        self.g.screen.blit(text, def_pos + [4 ,4], area = [text.get_rect().w * ratio_rev ** 5, 0 , blit_area[2], blit_area[3]])
+        blit_area2 = [text.get_rect().w * ratio_rev ** 5, 0 , blit_area[2], blit_area[3]]
+
+        self.g.screen.blit(text, def_pos + [4 ,4], area = blit_area2)
 
     #    self.quicktext(self.name, 30, )
 
@@ -99,8 +101,24 @@ class Part_HUD_Elements:
             end = self.desc[key][1]
             value = self.__dict__[self.desc[key][0]]
             if key == "Description: ":
-                self.quicktext(f"{value}" , 15, def_pos + [4,y_pos], area = blit_area)
+                self.quicktext(f"{value}" , 15, def_pos + [4,y_pos], area = blit_area2)
                 y_pos += 10
             else:
-                self.quicktext(f"{key}{value}{end}", 15, def_pos + [4,y_pos], area = blit_area)
+                self.quicktext(f"{key}{value}{end}", 15, def_pos + [4,y_pos], area = blit_area2)
             y_pos += 20
+
+
+
+    def draw_rotated_rect(self):
+        if self.hull < 0:
+            return
+        rotate_rect = self.image_rect.copy()
+        points = core.func.rotate_rectangle_around_pivot(rotate_rect, self.draw_angle, self.center)
+        for point_1 in points:
+            point_1 += self.delta_vector - self.center + (1920-150, 1080-150)
+        ratio_green = min([self.hull/100, 1])
+        ratio_red = min([(200-self.hull)/100, 1])
+        i1 = points[-1]
+        for i in points:
+            pygame.draw.line(self.g.screen, [255*ratio_red,255*ratio_green,0], i, i1, 1)
+            i1 = i

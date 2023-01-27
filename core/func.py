@@ -218,11 +218,11 @@ def intersect(A, B, C, D):
 def collision_side_2(rect_points, inside_point, insertion_angle):
     # calculate the endpoint of the line
 
-    inside_point[0] += math.cos(insertion_angle) * 10
-    inside_point[1] += math.sin(insertion_angle) * 10
+    inside_point[0] += math.cos(insertion_angle) * 6
+    inside_point[1] += math.sin(insertion_angle) * 6
 
-    end_x = inside_point[0] + math.cos(insertion_angle + math.pi) * 20
-    end_y = inside_point[1] + math.sin(insertion_angle + math.pi) * 20
+    end_x = inside_point[0] + math.cos(insertion_angle + math.pi) * 12
+    end_y = inside_point[1] + math.sin(insertion_angle + math.pi) * 12
     end_point = (end_x, end_y)
     # check for intersection with each side of the rectangle
     for i in range(4):
@@ -264,6 +264,40 @@ def rot_center(image, angle, x, y):
     new_rect = rotated_image.get_rect(center=image.get_rect(center=(x, y)).center)
 
     return rotated_image, new_rect
+
+
+
+def load_animation(directory, start_frame, frame_count, alpha=255, intro = False):
+    list_anim = []
+
+
+    for x in range(frame_count):
+        x = x + start_frame
+        im_dir = directory + "/" + (4 - len(str(x))) * "0" + str(x) + ".png"
+
+        im = pygame.image.load(im_dir).convert_alpha()
+
+        if intro:
+            if x - start_frame > frame_count-10:
+                i = (x - start_frame) - (frame_count-10)
+                i = (i/10) ** 3 + 1
+                size = list(im.get_size())
+                size[0] *= i
+                size[1] *= i
+
+                im = pygame.transform.scale(im, size)
+
+        if alpha != 255:
+            im2 = pygame.Surface(im.get_size())
+            im2.fill((0, 0, 0))
+            im.set_alpha(alpha)
+            im2.blit(im, (0, 0))
+            list_anim.append(im2)
+        else:
+            list_anim.append(im)
+
+    return list_anim
+
 
 
 def rotate(surface, angle, pivot, offset):

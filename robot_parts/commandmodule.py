@@ -12,3 +12,5 @@ class CommandModule(Part):
         self.satellite_angle = 0
         self.sensory_range = 4
         self.desc["Sensory Range: "] = ["sensory_range", "m"]
+        self.desc["Battery Consumption: "] = ["passive_consumption", "W"]
+        self.passive_consumption = 100

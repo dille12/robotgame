@@ -54,16 +54,11 @@ def draw_build_hud(game):
     game.quicktext(f"Mass: {app_mass:.1f}kg", 50, (20, ry-200))
     game.quicktext(f"Battery Capacity: {electricity*ratio + game.last_battery_capacity * (1-ratio):.1f}Wh", 50, (20, ry-140))
 
-    dec = shift_integrand(calc_acceleration2, core.track_power, app_mass)
-    acceleration, error = quad(dec, 1, numpy.inf)
+    acceleration = core.track_power / (app_mass*9.81)
 
-    x_0 = 1
+    vel = acceleration/(0.01010101*30)
 
-    dec2 = shift_integrand(calc_acceleration2, core.track_power, app_mass, 0.1)
-
-    x_value = fsolve(dec2, x_0)[0]
-
-    game.quicktext(f"Top speed: {acceleration:.1f}m/s in {x_value:.1f} seconds", 50, (20, ry-70))
+    game.quicktext(f"Acceleration: {acceleration:.1f} m/s^2, Top speed: {vel:.1f} m/s", 50, (20, ry-70))
 
     game.hud_tick.tick()
 
