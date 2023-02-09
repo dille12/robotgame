@@ -10,22 +10,21 @@ from projectiles.spark import Spark
 from projectiles.explosion import Explosion
 
 class Part(Part_HUD_Elements):
-    def __init__(self, name, game, pos, image):
+    def __init__(self, game, pos):
         super().__init__()
-        self.name = name
         self.g = game
         self.pos = v2(pos, dtype=numpy.float64)
         self.vel = 0
         self.angular_vel = 0
         self.rect = pygame.Rect(self.pos[0], self.pos[1], 10, 10)
-        self.image = image
-        self.image_rect = image[self.g.zoom].get_rect()
+        self.image_rect = self.image[self.g.zoom].get_rect()
         self.active = False
         self.sell_button = Button(game, 10,80, f"Sell: {self.name}", font = 50, dont_center = True)
         self.moving = False
         self.modules = []
         self.children = []
         self.parent = None
+        self.module = None
         self.attachable = False
         self.modular = False
         self.angle = 0

@@ -2,10 +2,10 @@ import core.func
 from robot_parts.part import Part
 import pygame
 from numpy import array as v2
-import numpy 
+import numpy
 class Attachable(Part):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        super().__init__(game, pos)
         self.attachable = True
 
 

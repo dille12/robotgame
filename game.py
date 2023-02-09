@@ -133,7 +133,7 @@ class Game:
                 x1,y1 = 0,0
 
 
-            print(f"{x} : [\n    {t1}('{d[x].name}', game, [500,500], image),\n    {parent if parent != -1 else None},\n    [{x1}, {y1}],\n    {d[x].angle}    ],")
+            print(f"{x} : [\n    {t1}(game, [500,500]),\n    {parent if parent != -1 else None},\n    [{x1}, {y1}],\n    {d[x].angle}    ],")
 
 
 

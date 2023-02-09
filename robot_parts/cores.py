@@ -19,8 +19,8 @@ def shift_integrand(integrand, track_power, mass, shift = 0):
 
 
 class Core(Part):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        super().__init__(game, pos)
         self.shift_gear_tick = self.g.GT(12, oneshot=True)
         self.keypresses = []
         self.battery_left = 1
@@ -81,8 +81,12 @@ class Core(Part):
 
 
 class BigCore(Core):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["core_temp"]
+        self.name = "Large Core"
+
+        super().__init__(game, pos)
+
         self.description = "A larger core for larger robots."
         self.core = True
         self.modular = False
@@ -104,8 +108,12 @@ class BigCore(Core):
         self.desc["Track power: "] = ["track_power", "W"]
 
 class SmallCore(Core):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["tank"]
+        self.name = "Small Core"
+
+        super().__init__(game, pos)
+
         self.description = "A small beginner robotcore."
         self.core = True
         self.modular = False

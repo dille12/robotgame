@@ -32,24 +32,27 @@ import robot_parts.rack
 import robot_parts.attachable
 
 from prefabs.default import build_prefab
-import prefabs.prebuilt
+
 
 from hud_elements.button import Button
 from core.game_tick_build import tick_build
 from core.game_tick_drive import tick_drive
 
-screen = pygame.display.set_mode((1920, 1080))
-clock = pygame.time.Clock()
-
 pygame.init()
 pygame.font.init()
 
+from prefabs.prebuilt import *
 
 
-game = Game(screen)
+#screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
+clock = pygame.time.Clock()
 
 
-#game.parts.append(BigCore("Core", game, [500,500], game.images["core_temp"]))
+#game = Game(screen)
+
+
+game.parts.append(robot_parts.cores.BigCore(game, [500,500]))
+game.parts.append(robot_parts.cores.BigCore(game, [500,500]))
 
 # game.parts.append(SmallCore("Small Core", game, [600,500], game.images["tank"]))
 #
@@ -57,7 +60,12 @@ game = Game(screen)
 #
 # game.parts.append(CommandModule("Command Module", game, [500,700], game.images["commandmodule"]))
 #
-# game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
+game.parts.append(robot_parts.armor.SteelArmor(game, [500,500]))
+game.parts.append(robot_parts.armor.SteelArmor(game, [500,500]))
+game.parts.append(robot_parts.armor.SteelArmor(game, [500,500]))
+
+game.parts.append(robot_parts.turret.KineticCannon(game, [500,500]))
+game.parts.append(robot_parts.ceiling_clamp.CeilingClamp(game, [600,600]))
 # game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
 # game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
 # game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
@@ -84,7 +92,7 @@ game = Game(screen)
 
 
 
-game.parts += build_prefab(prefabs.prebuilt.DEFAULT_LIGHT_ATTACKER)
+#game.parts += build_prefab(game, DEFAULT_MEDIUM_ATTACKER)
 print("Prefab built")
 print(game.parts)
 

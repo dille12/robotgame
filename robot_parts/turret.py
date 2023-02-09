@@ -9,8 +9,8 @@ from hud_elements.battle_info import BattleInfo
 
 
 class Turret(Part):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        super().__init__(game, pos)
 
         self.modular = True
         self.battery_life = 0
@@ -108,8 +108,11 @@ class Turret(Part):
 
 
 class KineticCannon(Turret):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["turret"]
+        self.name = "Kinetic Cannon"
+
+        super().__init__(game, pos)
         self.bullet_caliper = 25
         self.description = "Slow cannon with high caliper."
         self.rpm = 98
@@ -129,8 +132,11 @@ class KineticCannon(Turret):
 
 
 class MachineGun(Turret):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["turret_machine"]
+        self.name = "Machine Gun"
+
+        super().__init__(game, pos)
         self.bullet_caliper = 7.62
         self.description = "Fast firing machine gun with low stopping power."
         self.mass = 30
@@ -139,7 +145,7 @@ class MachineGun(Turret):
         self.clip_size = 100
         self.sound = "cannon_fire_medium"
         self.shake = 2
-        self.firing_power = 250
+        self.firing_power = 75
         self.turn_power = 50
         self.turn_speed = 0.5
         self.turn_speed_second = self.turn_speed*60

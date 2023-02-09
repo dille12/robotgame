@@ -4,8 +4,10 @@ from robot_parts.module import Module
 
 
 class WeaponClamp(Attachable):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["turret_base"]
+        self.name = "Armament Clamp"
+        super().__init__(game, pos)
         self.description = "Can attach weapons to walls."
         self.modular = False
 

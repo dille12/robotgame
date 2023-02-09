@@ -4,8 +4,12 @@ from robot_parts.module import Module
 
 
 class CeilingClamp(Part):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["turret_ceiling"]
+        self.name = "Ceiling Clamp"
+        
+        super().__init__(game, pos)
+
         self.description = "Can link cannons to modules."
         self.modular = True
 

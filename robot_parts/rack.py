@@ -7,8 +7,11 @@ from robot_parts.attachable import Attachable
 
 
 class Rack(Attachable):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["rack"]
+        self.name = "Rack"
+        
+        super().__init__(game, pos)
 
         self.modular = False
 

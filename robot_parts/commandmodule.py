@@ -1,8 +1,12 @@
 from robot_parts.part import Part
 
 class CommandModule(Part):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["commandmodule"]
+        self.name = "Command Module"
+        
+        super().__init__(game, pos)
+
         self.description = "Contains remote control equipment."
         self.modular = True
         self.mass = 20

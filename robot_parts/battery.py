@@ -1,8 +1,11 @@
 from robot_parts.part import Part
 
 class Battery(Part):
-    def __init__(self, name, game, pos, image):
-        super().__init__(name, game, pos, image)
+    def __init__(self, game, pos):
+        self.image = game.images["battery"]
+        self.name = "Li-ion Battery"
+
+        super().__init__(name, game, pos)
         self.description = "Small Li-ion battery."
         self.modular = True
         self.battery_life = 1500
