@@ -31,17 +31,21 @@ import robot_parts.armor
 import robot_parts.rack
 import robot_parts.attachable
 
-from prefabs.default import build_prefab
+
 
 
 from hud_elements.button import Button
-from core.game_tick_build import tick_build
-from core.game_tick_drive import tick_drive
+
 
 pygame.init()
 pygame.font.init()
 
 from prefabs.prebuilt import *
+
+from prefabs.default import build_prefab
+
+from core.game_tick_build import tick_build
+from core.game_tick_drive import tick_drive
 
 
 #screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
@@ -50,50 +54,25 @@ clock = pygame.time.Clock()
 
 #game = Game(screen)
 
+game.parts += build_prefab(game, "RAILGUNNER_LIGHT")
+#game.parts.append(robot_parts.cores.SmallCore(game, [500,500]))
+game.parts.append(robot_parts.commandmodule.CommandModule(game, [500,500]))
 
-game.parts.append(robot_parts.cores.BigCore(game, [500,500]))
-game.parts.append(robot_parts.cores.BigCore(game, [500,500]))
 
-# game.parts.append(SmallCore("Small Core", game, [600,500], game.images["tank"]))
-#
-# game.parts.append(Battery("Small Battery", game, [500,500], game.images["battery"]))
-#
-# game.parts.append(CommandModule("Command Module", game, [500,700], game.images["commandmodule"]))
-#
-game.parts.append(robot_parts.armor.SteelArmor(game, [500,500]))
-game.parts.append(robot_parts.armor.SteelArmor(game, [500,500]))
-game.parts.append(robot_parts.armor.SteelArmor(game, [500,500]))
-
+game.parts.append(robot_parts.turret.Railgun(game, [500,500]))
+game.parts.append(robot_parts.turret.MachineGun(game, [500,500]))
 game.parts.append(robot_parts.turret.KineticCannon(game, [500,500]))
-game.parts.append(robot_parts.ceiling_clamp.CeilingClamp(game, [600,600]))
-# game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
-# game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
-# game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
-# game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
-# game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
-# game.parts.append(SteelArmor("Steel Armorplate", game, [500,500], game.images["armor"]))
-#
-#
-# game.parts.append(WeaponClamp("Armament Clamp", game, [500,500], game.images["turret_base"]))
-# game.parts.append(WeaponClamp("Armament Clamp", game, [500,500], game.images["turret_base"]))
-# game.parts.append(WeaponClamp("Armament Clamp", game, [500,500], game.images["turret_base"]))
-#
-# game.parts.append(KineticCannon("Kinetic Cannon", game, [500,500], game.images["turret"], ))
-# game.parts.append(KineticCannon("Kinetic Cannon", game, [500,500], game.images["turret"], center = [10,78]))
-# game.parts.append(KineticCannon("Kinetic Cannon", game, [500,500], game.images["turret"], center = [10,78]))
-#
-# game.parts.append(MachineGun("Machine Gun", game, [500,500], game.images["turret_machine"], center = ))
+game.parts.append(robot_parts.weapon_clamp.WeaponClamp(game, [500,500]))
 
-# game.parts.append(MachineGun("Machine Gun", game, [500,500], game.images["turret_machine"], center = [10,50]))
+game.parts.append(robot_parts.ceiling_clamp.CeilingClamp(game, [500,500]))
+game.parts.append(robot_parts.ceiling_clamp.CeilingClamp(game, [500,500]))
+game.parts.append(robot_parts.battery.Battery(game, [500,500]))
 
-# game.parts.append(CeilingClamp("Ceiling Clamp", game, [600,600], game.images["turret_ceiling"]))
+game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
+game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
+game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
+game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
 
-
-
-
-
-#game.parts += build_prefab(game, DEFAULT_MEDIUM_ATTACKER)
-print("Prefab built")
 print(game.parts)
 
 
@@ -118,13 +97,23 @@ while 1:
     if game.state == "build":
         game.screen.fill((102, 153, 255))
         if b1.tick():
-            game.state = "drive"
-            game.depth_sorted_parts = game.sort_parts_by_depth()
+            game.state = "build_enemies"
+
         if b2.tick():
             game.print_robot_info()
         tick_build(game)
+
+
+    elif game.state == "build_enemies":
+
+        game.parts += build_prefab(game, "ULTRALIGHT_ATTACKER", [1000,1000])
+
+        game.depth_sorted_parts = game.sort_parts_by_depth()
+
+        game.state = "drive"
+
     elif game.state == "drive":
-        game.screen.fill((0, 153, 0))
+        game.screen.fill((0, 0, 0))
 
         tick_drive(game)
 
@@ -135,6 +124,5 @@ while 1:
 
     game.quicktext(f"{1/game.tick_time:.0f}fps", 20, (20,125))
     game.quicktext(f"{game.tick_time/(1/60)*100:.0f}%", 20, (20,100))
-    game.quicktext(f"{game.misses}", 20, (20,150))
 
     pygame.display.update()

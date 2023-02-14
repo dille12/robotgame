@@ -10,6 +10,7 @@ def tick_build(game):
     parts_dist = {}
     parts_size = {}
     for core_part in game.parts:
+        core_part.player_controlled = True
         if core_part.rect.collidepoint(game.mouse_pos):
             parts_dist[core.func.get_dist_points(core_part.pos, game.mouse_pos)] = core_part
         depth = core_part.recursive_get_parent_depth(0)

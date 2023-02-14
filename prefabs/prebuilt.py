@@ -86,3 +86,73 @@ DEFAULT_MEDIUM_ATTACKER = {
     [45, 41],
     180    ],
 }
+
+RAILGUNNER_LIGHT = {
+0 : [
+    robot_parts.cores.SmallCore(game, [500,500]),
+    None,
+    [0, 0],
+    0    ],
+1 : [
+    robot_parts.ceiling_clamp.CeilingClamp(game, [500,500]),
+    0,
+    [-50, 0],
+    0    ],
+2 : [
+    robot_parts.turret.Railgun(game, [500,500]),
+    1,
+    [0, 0],
+    -90.0    ],
+3 : [
+    robot_parts.armor.SteelArmor(game, [500,500]),
+    0,
+    [78, 20],
+    270    ],
+4 : [
+    robot_parts.armor.SteelArmor(game, [500,500]),
+    0,
+    [78, -20],
+    270    ],
+5 : [
+    robot_parts.armor.SteelArmor(game, [500,500]),
+    0,
+    [45, -40],
+    0    ],
+6 : [
+    robot_parts.armor.SteelArmor(game, [500,500]),
+    0,
+    [45, 41],
+    180    ],
+7 : [
+    robot_parts.commandmodule.CommandModule(game, [500,500]),
+    0,
+    [0, 0],
+    0    ],
+}
+ULTRALIGHT_ATTACKER = {
+0 : [
+    robot_parts.cores.SmallCore(game, [500,500]),
+    None,
+    [0, 0],
+    0    ],
+1 : [
+    robot_parts.armor.SteelArmor(game, [500,500]),
+    0,
+    [78, -25],
+    270    ],
+2 : [
+    robot_parts.armor.SteelArmor(game, [500,500]),
+    0,
+    [78, 20],
+    270    ],
+3 : [
+    robot_parts.ceiling_clamp.CeilingClamp(game, [500,500]),
+    0,
+    [0, 0],
+    0    ],
+4 : [
+    robot_parts.turret.LMG(game, [500,500]),
+    3,
+    [0, 0],
+    -90.0    ],
+}

@@ -1,9 +1,18 @@
 from numpy import array as v2
 import numpy
 import core.func
+from prefabs.prebuilt import *
 
-def build_prefab(game, parts):
+def build_prefab(game, parts, return_pos = [500,500]):
+
+    parts = eval(parts)
+
     part_list = []
+
+    for key in parts:
+        parts[key][0] = parts[key][0].copy()
+
+
     for key in parts:
         part, parent_index, delta, angle = parts[key]
         part.g = game
@@ -26,7 +35,7 @@ def build_prefab(game, parts):
 
 
 
-    core.pos = v2([300,300], dtype=numpy.float64)
+    core.pos = v2(return_pos, dtype=numpy.float64)
     core.move_children()
 
 

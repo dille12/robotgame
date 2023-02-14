@@ -10,7 +10,7 @@ class ArmorPlate(Attachable):
 class SteelArmor(ArmorPlate):
     def __init__(self, game, pos):
         self.name = "Steel Armorplate"
-        
+
         super().__init__(game, pos)
         self.mass = 12
         self.flowstress = 500

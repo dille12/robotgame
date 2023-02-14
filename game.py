@@ -47,6 +47,8 @@ class Game:
         load_images(self, self.size_conv)
         load_sounds(self)
 
+        self.set_sound_volume(0.5)
+
     def sort_parts_by_depth(self):
         parts = {}
         for x in self.parts:
@@ -73,6 +75,13 @@ class Game:
 
     def load_robot(self):
         pass
+
+    def image(self, name):
+        l = []
+        for i in self.images[name]:
+            l.append(self.images[name][i].copy())
+
+        return l
 
 
     def sound(self, key):
@@ -107,6 +116,10 @@ class Game:
     def quicktext(self, text, size, pos):
         text_surf = self.terminal[size].render(text, False, [255,255,255])
         self.screen.blit(text_surf, pos)
+
+    def set_sound_volume(self,value):
+        for key in self.sounds:
+            self.sounds[key].set_volume(value)
 
     def print_robot_info(self):
         for x in self.parts:

@@ -55,6 +55,7 @@ class Part(Part_HUD_Elements):
         self.draw_angle = 69
         self.passive_consumption = 0
         self.angle_to_parent = 0
+        self.player_controlled = False
 
         self.desc = {
             "Description: " : ["description", ""],
@@ -63,6 +64,13 @@ class Part(Part_HUD_Elements):
             "Mass: " : ["mass", "kg"],
             "Battery Capacity: " : ["battery_life", "Wh"],
         }
+
+    def copy(self):
+        cls = type(self)
+        print("SELF:", self)
+        copy_class = cls(self.g, [500,500])
+        print("COPYING:", copy_class)
+        return copy_class
 
     def recursive_get_parent_depth(self, depth):
         if self.parent:
@@ -97,7 +105,7 @@ class Part(Part_HUD_Elements):
             self.g.vibrate(35)
 
         self.info = BattleInfo(self.g.campos(self.real_pos), self, self.g, [255,0,0], "DESTROYED")
-        print("KILLING:", self.name)
+        self.g.sound("part_break")
         children = self.recursive_get_children(self, [self])
         for x in children:
             if x in self.g.parts:

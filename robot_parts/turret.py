@@ -46,7 +46,15 @@ class Turret(Part):
             self.info = BattleInfo(pos, self, self.g, [255,0,0], "Reloading 0%")
             return
 
-        if "mouse0" in self.g.keypress_held_down and self.firing_tick <= 0:
+        if ("mouse0" in self.g.keypress_held_down or not self.player_controlled) and self.firing_tick <= 0:
+
+            if not self.player_controlled:
+                if self.highest_parent:
+                    if self.highest_parent.enemy:
+                        distance_to_enemy = core.func.get_dist_points(self.highest_parent.enemy.pos, self.highest_parent.pos)
+                        if distance_to_enemy > 1000:
+                            return
+
             self.firing_tick += 1/(self.rpm/3600)
             self.g.sounds[self.sound].stop()
             self.g.sounds[self.sound].play()
@@ -60,16 +68,25 @@ class Turret(Part):
     def tick_weapons(self, pos, angle):
 
         angle = angle % 360
+        dont_fire = False
+        if self.player_controlled:
+            delta = self.g.mouse_pos - pos
+        else:
+            if self.highest_parent:
+                if self.highest_parent.enemy:
+                    delta = self.g.campos(self.highest_parent.enemy.pos - pos)
 
-        delta = self.g.mouse_pos - pos
+
+
+
         angle_to_mouse = math.atan2(delta[1], delta[0])
-
-        for a in [-self.turn_radius, self.turn_radius]:
-            rad = math.radians(270 - (a + angle))
-            vector = v2([math.cos(rad), math.sin(rad)])
-            pos1 = vector * 25 + pos
-            pos2 = vector * 75 + pos
-            pygame.draw.line(self.g.screen, [0,255,0], pos1, pos2, 1)
+        if self.player_controlled:
+            for a in [-self.turn_radius, self.turn_radius]:
+                rad = math.radians(270 - (a + angle))
+                vector = v2([math.cos(rad), math.sin(rad)])
+                pos1 = vector * 25 + pos
+                pos2 = vector * 75 + pos
+                pygame.draw.line(self.g.screen, [0,255,0], pos1, pos2, 1)
 
         if core.func.angle_between_angles2(math.degrees(angle_to_mouse), 270 - (angle-self.turn_radius), 270 - (angle+self.turn_radius)):
 
@@ -79,11 +96,12 @@ class Turret(Part):
             dist = core.func.get_dist_points(pos, self.g.mouse_pos)
             rads = math.radians( - self.turn + 270 - angle)
             vector = v2([math.cos(rads), math.sin(rads)])
-            for i in range(1, 11):
+            if self.player_controlled:
+                for i in range(1, 11):
 
-                pos1 = vector * dist/20 * i * 2 + pos
-                pos2 = vector * dist/20 * (i*2+1)  + pos
-                pygame.draw.line(self.g.screen, [0,255,0], pos1, pos2, 1)
+                    pos1 = vector * dist/20 * i * 2 + pos
+                    pos2 = vector * dist/20 * (i*2+1)  + pos
+                    pygame.draw.line(self.g.screen, [0,255,0], pos1, pos2, 1)
 
             self.fire(pos, angle)
 
@@ -123,9 +141,50 @@ class KineticCannon(Turret):
         self.shake = 5
         self.firing_power = 1750
         self.turn_power = 75
-        self.turn_speed = 0.25
+        self.turn_speed = 0.35
         self.turn_speed_second = self.turn_speed*60
         self.center = v2([10,78])
+
+class Railgun(Turret):
+    def __init__(self, game, pos):
+        self.image = game.images["railgun"]
+        self.name = "M1 Railgun"
+
+        super().__init__(game, pos)
+        self.bullet_caliper = 250
+        self.description = "Massive but destructive cannon."
+        self.rpm = 60
+        self.clip_size = 5
+        self.mass = 100
+        self.turn_radius = 38
+        self.sound = "railgun_large"
+        self.shake = 10
+        self.firing_power = 5000
+        self.turn_power = 150
+        self.turn_speed = 0.25
+        self.turn_speed_second = self.turn_speed*60
+        self.center = v2([19,95])
+
+class LMG(Turret):
+    def __init__(self, game, pos):
+        self.image = game.images["turret_machine"]
+        self.name = "Light Machine Gun"
+
+        super().__init__(game, pos)
+        self.bullet_caliper = 3
+        self.description = "Light cannon for small targets."
+        self.rpm = 300
+        self.clip_size = 30
+        self.mass = 30
+        self.turn_radius = 40
+        self.sound = "cannon_fire_small"
+        self.shake = 0.5
+        self.firing_power = 50
+        self.turn_power = 25
+        self.turn_speed = 0.3
+        self.turn_speed_second = self.turn_speed*60
+        self.center = v2([10,50])
+        self.recoil = 10
 
 
 
@@ -137,7 +196,7 @@ class MachineGun(Turret):
         self.name = "Machine Gun"
 
         super().__init__(game, pos)
-        self.bullet_caliper = 7.62
+        self.bullet_caliper = 4
         self.description = "Fast firing machine gun with low stopping power."
         self.mass = 30
         self.turn_radius = 70
@@ -147,6 +206,7 @@ class MachineGun(Turret):
         self.shake = 2
         self.firing_power = 75
         self.turn_power = 50
-        self.turn_speed = 0.5
+        self.turn_speed = 0.65
         self.turn_speed_second = self.turn_speed*60
         self.center = v2([10,50])
+        self.recoil = 4

@@ -5,7 +5,7 @@ class Battery(Part):
         self.image = game.images["battery"]
         self.name = "Li-ion Battery"
 
-        super().__init__(name, game, pos)
+        super().__init__(game, pos)
         self.description = "Small Li-ion battery."
         self.modular = True
         self.battery_life = 1500

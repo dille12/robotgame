@@ -16,6 +16,24 @@ class Part_HUD_Elements:
         else:
             self.g.screen.blit(text, pos)
 
+    def color(self, hue):
+        s = self.image[self.g.zoom]
+
+        if self.tracks:
+            l = [self.tracks, s]
+        else:
+            l = [s]
+
+        for surface in l:
+            for x in range(surface.get_width()):
+                for y in range(surface.get_height()):
+                    rgb = surface.get_at((x,y))
+                    color = pygame.Color(rgb)
+                    h, s, l, a = color.hsla
+                    color.hsla = (h+hue)%360,s,l,a
+                    surface.set_at((x,y), color)
+
+
 
     def draw_turret_turn(self):
         ang_rad = math.radians(self.turn_radius)
