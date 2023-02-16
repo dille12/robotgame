@@ -21,6 +21,7 @@ class Projectile:
         self.image, r = core.func.rot_center(self.g.images["bullet"][self.g.zoom], 270-self.angle, pos[0], pos[1])
         self.pos = v2([r.x, r.y], dtype=numpy.float64)
         self.mask = pygame.mask.from_surface(self.image)
+        self.HV = random.randint(35,45)
 
         self.energy = 1
 
@@ -38,6 +39,8 @@ class Projectile:
         for i in range(self.divisions):
             self.pos += self.vector
 
+            self.center = self.pos + self.image.get_rect().center
+
             for depth in sorted(self.g.depth_sorted_parts, reverse = True):
                 for part in self.g.depth_sorted_parts[depth]:
                     if part.mask and part.highest_parent != self.owner:
@@ -48,10 +51,11 @@ class Projectile:
                             #(pos, self, self.g, [255,0,0], "Reloading 0%")
                             self.kill()
 
-                            impact_angle = part.impact_angle(part.maskpos + point, self.angle)
+                            impact_angle = part.impact_angle(self.center, part.maskpos + point, self.angle)
                             dam = True
                             if impact_angle:
-                                if abs(core.func.get_angle_diff(self.angle, impact_angle)) < 90:
+                                angle = abs(core.func.get_angle_diff(self.angle, impact_angle)) - 45
+                                if projectile_ricochet(1, 10, self.HV, part.HV, angle):
                                     self.g.bullets.append(Projectile(part, self.g, part.maskpos + point, impact_angle, self.caliper))
                                     dam = False
                                     self.g.sound("ricochet")
@@ -72,3 +76,29 @@ class Projectile:
 
         if self.lifetime < 0:
             self.kill()
+
+
+def projectile_ricochet(m_projectile, v_projectile, HV_projectile, HV_armor, angle_of_incidence):
+    # Calculate the critical energy and angle for ricochet
+    angle_of_incidence = math.radians(angle_of_incidence)
+    E_critical = ((HV_armor**2)/(16*m_projectile)) * (math.cos(angle_of_incidence))**2
+    # Check if the argument of asin is within the domain of [-1, 1]
+    sin_argument = math.sqrt(HV_armor/HV_projectile)*math.sin(angle_of_incidence)
+    if sin_argument >= 1:
+        angle_critical = math.pi/2
+    elif sin_argument <= -1:
+        angle_critical = -math.pi/2
+    else:
+        angle_critical = math.asin(sin_argument)
+
+
+    projectile_energy = (1/2) * m_projectile * v_projectile**2
+
+
+    # Check if the projectile has enough energy to ricochet
+    if 0 < angle_of_incidence < angle_critical and projectile_energy < E_critical:
+        print("RICOCHET")
+        return True
+    else:
+        print("NO RICOCHET")
+        return False

@@ -137,6 +137,7 @@ class BigCore(Core):
         self.track_power = 12000 #watt
         self.tracks = self.g.images["tracks"][self.g.zoom]
         self.desc["Track power: "] = ["track_power", "W"]
+        self.HV = 100
 
 class SmallCore(Core):
     def __init__(self, game, pos):
@@ -147,6 +148,7 @@ class SmallCore(Core):
 
 
         super().__init__(game, pos)
+        self.HV = 100
 
 
         self.description = "A small beginner robotcore."
@@ -162,6 +164,36 @@ class SmallCore(Core):
         self.modular_compability = ["Part"]
         self.track_power = 4000 #watt
         self.tracks = self.g.image("tracks")[self.g.zoom]
+        t = time.perf_counter()
+        self.color(self.random_hue)
+        print(time.perf_counter() - t)
+
+        self.desc["Track power: "] = ["track_power", "W"]
+
+class VerySmallCore(Core):
+    def __init__(self, game, pos):
+        self.image = game.image("tank_small")
+
+        self.name = "Mini Core"
+        self.random_hue = random.randint(0,360)
+
+
+        super().__init__(game, pos)
+        self.HV = 90
+
+
+        self.description = "Very small core."
+        self.core = True
+        self.modular = False
+        self.extendable = True
+        self.modules = (Module(v2([-25,0])),
+                        Module(v2([25,0])),
+                        )
+        self.battery_life = 250
+        self.mass = 50
+        self.modular_compability = ["Part"]
+        self.track_power = 3000 #watt
+        self.tracks = self.g.image("tracks_small")[self.g.zoom]
         t = time.perf_counter()
         self.color(self.random_hue)
         print(time.perf_counter() - t)

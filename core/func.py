@@ -214,6 +214,27 @@ def ccw(A, B, C):
 def intersect(A, B, C, D):
     return ccw(A, C, D) != ccw(B, C, D) and ccw(A, B, C) != ccw(A, B, D)
 
+def collision_side_3(rect_points, inside_point, insertion_angle, bullet_point, self = None):
+    dist = float("inf")
+    intersecting = None
+
+    inside_point[0] += math.cos(insertion_angle) * 100
+    inside_point[1] += math.sin(insertion_angle) * 100
+
+
+
+    for i in range(4):
+        side1 = rect_points[i]
+        side2 = rect_points[(i+1) % 4]
+
+        if intersect(inside_point, bullet_point, side1, side2):
+            d = get_dist_points(bullet_point, (side1+side2)/2)
+            if d < dist:
+                intersecting = [side1, side2]
+                dist = d
+    return intersecting
+
+
 
 def collision_side_2(rect_points, inside_point, insertion_angle):
     # calculate the endpoint of the line

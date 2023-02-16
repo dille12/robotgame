@@ -54,8 +54,8 @@ clock = pygame.time.Clock()
 
 #game = Game(screen)
 
-game.parts += build_prefab(game, "RAILGUNNER_LIGHT")
-#game.parts.append(robot_parts.cores.SmallCore(game, [500,500]))
+#game.parts += build_prefab(game, "ULTRALIGHT_ATTACKER")
+game.parts.append(robot_parts.cores.SmallCore(game, [500,500]))
 game.parts.append(robot_parts.commandmodule.CommandModule(game, [500,500]))
 
 
@@ -68,8 +68,8 @@ game.parts.append(robot_parts.ceiling_clamp.CeilingClamp(game, [500,500]))
 game.parts.append(robot_parts.ceiling_clamp.CeilingClamp(game, [500,500]))
 game.parts.append(robot_parts.battery.Battery(game, [500,500]))
 
-game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
-game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
+game.parts.append(robot_parts.armor.SteelArmor(game, [500,500]))
+game.parts.append(robot_parts.armor.AluminumAlloyArmor(game, [500,500]))
 game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
 game.parts.append(robot_parts.armor.CarbonCompositeArmor(game, [500,500]))
 
@@ -82,6 +82,8 @@ b2 = Button(game, 10,200, "Print Info", font = 50, dont_center = True)
 
 while 1:
     clock.tick(60)
+
+    game.sleep = False
 
     core.keypress.key_press_manager(game)
 
@@ -106,7 +108,8 @@ while 1:
 
     elif game.state == "build_enemies":
 
-        game.parts += build_prefab(game, "ULTRALIGHT_ATTACKER", [1000,1000])
+
+        game.parts += build_prefab(game, "ULTRALIGHT_ATTACKER", [random.randint(100,2000),random.randint(100,2000)])
 
         game.depth_sorted_parts = game.sort_parts_by_depth()
 
@@ -124,5 +127,10 @@ while 1:
 
     game.quicktext(f"{1/game.tick_time:.0f}fps", 20, (20,125))
     game.quicktext(f"{game.tick_time/(1/60)*100:.0f}%", 20, (20,100))
+    game.quicktext(f"{game.misses}", 20, (20,150))
 
     pygame.display.update()
+
+    # if game.sleep:
+    #     game.sleep = False
+    #     time.sleep(1)

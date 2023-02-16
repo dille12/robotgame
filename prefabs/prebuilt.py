@@ -156,3 +156,25 @@ ULTRALIGHT_ATTACKER = {
     [0, 0],
     -90.0    ],
 }
+ULTRALIGHT_MINI = {
+0 : [
+    robot_parts.cores.VerySmallCore(game, [500,500]),
+    None,
+    [0, 0],
+    0    ],
+1 : [
+    robot_parts.ceiling_clamp.CeilingClamp(game, [500,500]),
+    0,
+    [-25, 0],
+    0    ],
+2 : [
+    robot_parts.turret.MachineGun(game, [500,500]),
+    1,
+    [0, 0],
+    -90.0    ],
+3 : [
+    robot_parts.armor.CarbonCompositeArmor(game, [500,500]),
+    0,
+    [41, 0],
+    270    ],
+}

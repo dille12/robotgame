@@ -8,6 +8,7 @@ import math
 from hud_elements.battle_info import BattleInfo
 from projectiles.spark import Spark
 from projectiles.explosion import Explosion
+import time
 
 class Part(Part_HUD_Elements):
     def __init__(self, game, pos):
@@ -56,6 +57,7 @@ class Part(Part_HUD_Elements):
         self.passive_consumption = 0
         self.angle_to_parent = 0
         self.player_controlled = False
+        self.HV = 50
 
         self.desc = {
             "Description: " : ["description", ""],
@@ -266,7 +268,7 @@ class Part(Part_HUD_Elements):
 
         return core.func.rotate(self.image[self.g.zoom].copy(), angle, center_vector, offset_vector)
 
-    def impact_angle(self, point, angle):
+    def impact_angle(self, bullet_point, point, angle):
         angle = math.radians(angle)
         rotate_rect = self.image_rect.copy()
         points = core.func.rotate_rectangle_around_pivot(rotate_rect, self.real_angle, self.center)
@@ -278,7 +280,8 @@ class Part(Part_HUD_Elements):
         #     pygame.draw.line(self.g.screen, [255,0,0], self.g.campos(i), self.g.campos(i1), 4)
         #     i1 = i
 
-        side = core.func.collision_side_2(points, point, angle)
+        side = core.func.collision_side_3(points, point, angle, bullet_point, self = self)
+        self.g.sleep = True
         if not side:
             self.g.misses += 1
             return
@@ -340,7 +343,7 @@ class Part(Part_HUD_Elements):
         if self.modular_type == "Weapon":
             self.tick_weapons(pos, total_angle)
 
-        pygame.draw.rect(self.g.screen, [255,255,255], (pos, (3,3)))
+        #pygame.draw.rect(self.g.screen, [255,255,255], (pos, (3,3)))
         if self.info:
             self.info.tick(pos)
 

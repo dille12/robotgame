@@ -21,7 +21,7 @@ def tick_drive(game):
     if len(cores) == 1:
 
         for i in range(1,2):
-            game.parts += build_prefab(game, random.choice(["ULTRALIGHT_ATTACKER","DEFAULT_LIGHT_ATTACKER", "DEFAULT_MEDIUM_ATTACKER", "RAILGUNNER_LIGHT"]), [random.randint(0,2000),random.randint(0,2000)])
+            game.parts += build_prefab(game, random.choice(["ULTRALIGHT_MINI", "ULTRALIGHT_ATTACKER","DEFAULT_LIGHT_ATTACKER", "DEFAULT_MEDIUM_ATTACKER", "RAILGUNNER_LIGHT"]), [random.randint(0,2000),random.randint(0,2000)])
 
         game.depth_sorted_parts = game.sort_parts_by_depth()
 
